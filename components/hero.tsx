@@ -170,7 +170,7 @@ export function Hero() {
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black" />
 
       <div className="relative z-10 text-center px-4 md:px-8 max-w-5xl">
         <div className="mb-6 md:mb-8 text-[10px] md:text-xs tracking-[0.3em] text-white/80 font-mono">
@@ -207,7 +207,7 @@ export function Hero() {
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50">
         <span className="text-[10px] tracking-widest">SCROLL</span>
-        <div className="w-px h-8 bg-gradient-to-b from-white/50 to-transparent" />
+        <div className="w-px h-8 bg-gradient-to-b from-white/50 to-transparent animate-pulse" />
       </div>
     </section>
   )

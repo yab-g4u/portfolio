@@ -12,21 +12,8 @@ export const metadata: Metadata = {
     "Portfolio of Yeabsera Sisay - Machine Learning Engineer and Fullstack Developer specializing in neural networks and scalable web applications.",
   generator: "v0.app",
   icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
+    icon: "/neural-favicon.jpg",
+    apple: "/neural-favicon.jpg",
   },
 }
 

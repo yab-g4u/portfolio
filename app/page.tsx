@@ -8,6 +8,7 @@ import { LogicSection } from "@/components/logic-section"
 import { NeuronsSection } from "@/components/neurons-section"
 import { ArchiveSection } from "@/components/archive-section"
 import { SignalSection } from "@/components/signal-section"
+import { AchievementsSection } from "@/components/achievements-section"
 import { Terminal } from "@/components/terminal"
 import { GridOverlay } from "@/components/grid-overlay"
 
@@ -55,6 +56,10 @@ export default function Portfolio() {
 
         <div id="neurons" className="scroll-mt-20">
           <NeuronsSection />
+        </div>
+
+        <div id="achievements" className="scroll-mt-20">
+          <AchievementsSection />
         </div>
 
         <div id="archive" className="scroll-mt-20">
