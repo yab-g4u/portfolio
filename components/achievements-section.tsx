@@ -11,24 +11,16 @@ const hackathons = [
   "UniHack",
 ]
 
-const victories = [
+const victoryProjects = [
   {
     name: "IDA",
-    event: "UniHack",
-    position: "1st Place Winner",
-    description:
-      "AI agent integrated website for intelligent prescription management, drug interaction detection, and patient health monitoring through advanced ML algorithms.",
-    tech: ["Python", "FastAPI", "React", "TensorFlow", "PostgreSQL"],
+    event: "UniHack - 1st Place",
     github: "https://github.com/yab-g4u/IDA.git",
     demo: "https://ida-test.vercel.app/",
   },
   {
     name: "MediScope",
-    event: "African Blockchain Championship",
-    position: "2nd Place",
-    description:
-      "Revolutionary blockchain-based healthcare platform for policy simulation and decentralized funding analysis with AI policy prediction.",
-    tech: ["Python", "Blockchain", "AI/ML", "React", "Solidity"],
+    event: "African Blockchain Championship - 2nd Place",
     github: "https://github.com/yab-g4u/medscop.git",
     demo: "https://medscop.vercel.app/",
   },
@@ -121,10 +113,10 @@ function AchievementNode({
 }: { achievement: Achievement; index: number; isVisible: boolean }) {
   const [isFlipped, setIsFlipped] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const [showVictories, setShowVictories] = useState(false)
 
   const isHackathons = achievement.id === "hackathons"
   const isVictories = achievement.id === "wins"
+  const isFlippable = isHackathons || isVictories
 
   return (
     <div
@@ -134,13 +126,11 @@ function AchievementNode({
       style={{ transitionDelay: `${index * 150}ms` }}
       onMouseEnter={() => {
         setIsHovered(true)
-        if (isVictories) setShowVictories(true)
-        if (isHackathons) setIsFlipped(true)
+        if (isFlippable) setIsFlipped(true)
       }}
       onMouseLeave={() => {
         setIsHovered(false)
-        if (isVictories) setShowVictories(false)
-        if (isHackathons) setIsFlipped(false)
+        if (isFlippable) setIsFlipped(false)
       }}
     >
       {index < achievements.length - 1 && (
@@ -148,15 +138,16 @@ function AchievementNode({
       )}
 
       <div
-        className="relative preserve-3d"
+        className="relative preserve-3d min-h-[220px] md:min-h-[240px]"
         style={{
           transformStyle: "preserve-3d",
-          transform: isHackathons && isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+          transform: isFlippable && isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
           transition: "transform 0.6s",
         }}
       >
+        {/* Front of card */}
         <div
-          className={`relative border-2 transition-all duration-300 p-4 md:p-6 bg-black backface-hidden ${
+          className={`absolute inset-0 border-2 transition-all duration-300 p-4 md:p-6 bg-black backface-hidden ${
             isHovered ? "border-white bg-white/5 scale-[1.02]" : "border-white/40"
           }`}
           style={{ backfaceVisibility: "hidden" }}
@@ -195,24 +186,15 @@ function AchievementNode({
 
             <p className="text-[10px] md:text-xs text-white/70 leading-relaxed">{achievement.description}</p>
 
-            {isHackathons && (
-              <div className="mt-3 text-[8px] md:text-[10px] text-white/50 tracking-wider">[HOVER TO VIEW LIST]</div>
+            {isFlippable && (
+              <div className="mt-3 text-[8px] md:text-[10px] text-white/50 tracking-wider">
+                [HOVER TO VIEW {isHackathons ? "LIST" : "PROJECTS"}]
+              </div>
             )}
           </div>
-
-          {isHackathons && (
-            <div
-              className="absolute inset-0 pointer-events-none overflow-hidden"
-              style={{
-                backfaceVisibility: "hidden",
-                transform: "rotateY(180deg)",
-              }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent animate-scan" />
-            </div>
-          )}
         </div>
 
+        {/* Back of card - Hackathons */}
         {isHackathons && (
           <div
             className="absolute inset-0 border-2 border-white bg-black p-4 md:p-6"
@@ -232,56 +214,45 @@ function AchievementNode({
             </div>
           </div>
         )}
-      </div>
 
-      {isVictories && showVictories && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-[90vw] md:w-[500px] z-[100] pointer-events-auto">
-          <div className="border-2 border-white bg-black p-4 md:p-6 space-y-4 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
-            <div className="text-[10px] tracking-[0.3em] text-white/60 mb-3">VICTORY PROJECTS</div>
-            {victories.map((victory, i) => (
-              <div
-                key={victory.name}
-                className="border border-white/40 p-3 md:p-4 hover:border-white hover:bg-white/5 transition-all duration-300 animate-in slide-in-from-top-2"
-                style={{ animationDelay: `${i * 100}ms` }}
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <div className="font-bold text-base md:text-lg mb-1">{victory.name}</div>
-                    <div className="text-[10px] text-white/60">{victory.event}</div>
+        {isVictories && (
+          <div
+            className="absolute inset-0 border-2 border-white bg-black p-4 md:p-5"
+            style={{
+              backfaceVisibility: "hidden",
+              transform: "rotateY(180deg)",
+            }}
+          >
+            <div className="text-[10px] md:text-xs tracking-[0.2em] text-white/60 mb-3">WINNING PROJECTS</div>
+            <div className="space-y-3">
+              {victoryProjects.map((project, i) => (
+                <div key={i} className="border border-white/40 p-2.5">
+                  <div className="font-bold text-sm mb-1">{project.name}</div>
+                  <div className="text-[9px] text-white/60 mb-2">{project.event}</div>
+                  <div className="flex gap-2">
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[8px] border border-white/50 px-2 py-1 hover:bg-white hover:text-black transition-colors"
+                    >
+                      GITHUB
+                    </a>
+                    <a
+                      href={project.demo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[8px] border border-white/50 px-2 py-1 hover:bg-white hover:text-black transition-colors"
+                    >
+                      DEMO
+                    </a>
                   </div>
-                  <div className="text-[10px] border border-white/60 px-2 py-1">{victory.position}</div>
                 </div>
-                <p className="text-xs text-white/70 leading-relaxed mb-3">{victory.description}</p>
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {victory.tech.map((tech) => (
-                    <span key={tech} className="text-[9px] border border-white/30 px-1.5 py-0.5">
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <a
-                    href={victory.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[10px] border border-white/60 px-3 py-1.5 hover:bg-white hover:text-black transition-colors"
-                  >
-                    GITHUB →
-                  </a>
-                  <a
-                    href={victory.demo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[10px] border border-white/60 px-3 py-1.5 hover:bg-white hover:text-black transition-colors"
-                  >
-                    LIVE DEMO →
-                  </a>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
