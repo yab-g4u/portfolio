@@ -85,9 +85,9 @@ export function Terminal() {
     <>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-8 right-8 z-50 border-2 border-white bg-black px-4 py-2 text-xs tracking-wider hover:bg-white hover:text-black transition-all duration-75"
+        className="fixed bottom-24 md:bottom-8 right-4 md:right-8 z-50 border-2 border-white bg-black px-3 md:px-4 py-2 text-[9px] md:text-xs tracking-wider hover:bg-white hover:text-black transition-all duration-75"
       >
-        {isOpen ? "[CLOSE_TERMINAL]" : "[OPEN_TERMINAL]"}
+        {isOpen ? "[CLOSE]" : "[OPEN_TERMINAL]"}
       </button>
 
       {isOpen && (

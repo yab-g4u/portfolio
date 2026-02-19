@@ -27,8 +27,10 @@ export async function POST(request: Request) {
 
     const resend = new Resend(apiKey)
 
+    console.log("[v0] Attempting to send email to g4uforlife@gmail.com")
+
     const { data, error } = await resend.emails.send({
-      from: "Portfolio Contact <onboarding@resend.dev>",
+      from: "onboarding@resend.dev",
       to: ["g4uforlife@gmail.com"],
       replyTo: email,
       subject: `[PORTFOLIO] New message from ${name}`,

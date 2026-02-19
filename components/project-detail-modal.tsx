@@ -30,11 +30,11 @@ export function ProjectDetailModal({ project, onClose }: ProjectDetailModalProps
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-start justify-center pt-8 pb-24 md:pb-8 md:pt-12 px-4 bg-black/95 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/95 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-2xl max-h-[70vh] md:max-h-[80vh] mb-20 md:mb-0 overflow-hidden border-2 border-white bg-black flex flex-col"
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden border-2 border-white bg-black flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button - sticky header */}
@@ -116,14 +116,14 @@ export function ProjectDetailModal({ project, onClose }: ProjectDetailModalProps
           </div>
         </div>
 
-        <div className="flex-shrink-0 bg-black border-t border-white/20 p-4">
-          <div className="flex gap-3">
+        <div className="flex-shrink-0 bg-black border-t border-white/20 p-4 md:p-6">
+          <div className="flex gap-3 flex-wrap">
             {hasGithub && (
               <a
                 href={project.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${hasDemo ? "flex-1" : "w-full"} text-center border-2 border-white px-4 py-3 hover:bg-white hover:text-black transition-all duration-75 text-sm tracking-wider font-medium`}
+                className={`${hasDemo ? "flex-1 min-w-[120px]" : "w-full"} text-center border-2 border-white px-4 py-3 md:py-4 hover:bg-white hover:text-black transition-all duration-75 text-xs md:text-sm tracking-wider font-medium`}
               >
                 VIEW GITHUB
               </a>
@@ -133,13 +133,13 @@ export function ProjectDetailModal({ project, onClose }: ProjectDetailModalProps
                 href={project.demo}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 text-center border-2 border-white bg-white text-black px-4 py-3 hover:bg-black hover:text-white transition-all duration-75 text-sm tracking-wider font-medium"
+                className={`${hasGithub ? "flex-1 min-w-[120px]" : "w-full"} text-center border-2 border-white bg-white text-black px-4 py-3 md:py-4 hover:bg-black hover:text-white transition-all duration-75 text-xs md:text-sm tracking-wider font-medium`}
               >
                 LIVE DEMO
               </a>
             )}
             {!hasGithub && !hasDemo && (
-              <div className="w-full text-center border-2 border-white/30 px-4 py-3 text-sm tracking-wider text-white/50">
+              <div className="w-full text-center border-2 border-white/30 px-4 py-3 text-xs md:text-sm tracking-wider text-white/50">
                 IN DEVELOPMENT
               </div>
             )}

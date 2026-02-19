@@ -45,8 +45,8 @@ export const projects: Project[] = [
       "Architected and developed the entire company website serving as lead software engineer. Built 15+ microservices for complex architectural data processing, optimizing API performance and reducing client data processing time by 35%. Includes proprietary team workspace module enabling collaborative project management.",
     tech: ["Python", "FastAPI", "React", "Next.js", "PostgreSQL", "Redis"],
     category: "fullstack",
-    github: "https://github.com/yab-g4u/lyne-creatives",
-    demo: "https://lyne-creativess.vercel.app/",
+    github: "",
+    demo: "https://lyne-cratives.vercel.app/",
     features: [
       "15+ microservices architecture",
       "Team workspace module",
