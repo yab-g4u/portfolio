@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const apiKey = process.env.RESEND_API_KEY
+    const apiKey = process.env.RESEND_API_KEY?.trim()
 
     if (!apiKey) {
       console.error("[v0] RESEND_API_KEY is not configured")
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       lastChars: apiKey.substring(apiKey.length - 4),
     })
 
-    const resend = new Resend(apiKey)
+    const resend = new Resend(apiKey.trim())
 
     console.log("[v0] Attempting to send email to g4uforlife@gmail.com")
 
