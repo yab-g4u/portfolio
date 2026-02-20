@@ -1,4 +1,5 @@
 export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
 
 import nodemailer from "nodemailer"
 import { NextResponse } from "next/server"
@@ -8,18 +9,20 @@ export async function POST(req: Request) {
     const { name, email, message } = await req.json()
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.EMAIL_USER!,
+        pass: process.env.EMAIL_PASS!,
       },
     })
 
     await transporter.sendMail({
       from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_TO,
-      replyTo: email,
+      to: process.env.EMAIL_TO!,
       subject: `New message from ${name}`,
+      replyTo: email,
       html: `
         <h3>New Contact Message</h3>
         <p><b>Name:</b> ${name}</p>
@@ -29,8 +32,8 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json({ success: true })
-  } catch (err) {
-    console.error(err)
+  } catch (error) {
+    console.error("EMAIL ERROR:", error)
     return NextResponse.json(
       { success: false },
       { status: 500 }
