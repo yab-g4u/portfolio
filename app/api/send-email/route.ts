@@ -1,5 +1,5 @@
+import nodemailer from "nodemailer"
 import { NextResponse } from "next/server"
-import { Resend } from "resend"
 
 export async function POST(request: Request) {
   try {
@@ -10,28 +10,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const apiKey = process.env.RESEND_API_KEY?.trim()
+    // Validate environment variables
+    const emailUser = process.env.EMAIL_USER
+    const emailPass = process.env.EMAIL_PASS
+    const emailTo = process.env.EMAIL_TO
 
-    if (!apiKey) {
-      console.error("[v0] RESEND_API_KEY is not configured")
+    if (!emailUser || !emailPass || !emailTo) {
+      console.error("[v0] Email environment variables not configured")
       return NextResponse.json({ error: "Email service not configured" }, { status: 500 })
     }
 
-    // Log API key format (first/last chars only for security)
-    console.log("[v0] API Key format check:", {
-      length: apiKey.length,
-      startsWithRe: apiKey.startsWith("re_"),
-      firstChars: apiKey.substring(0, 5),
-      lastChars: apiKey.substring(apiKey.length - 4),
+    // Create Nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: emailUser,
+        pass: emailPass,
+      },
     })
 
-    const resend = new Resend(apiKey.trim())
+    console.log("[v0] Attempting to send email from", emailUser, "to", emailTo)
 
-    console.log("[v0] Attempting to send email to g4uforlife@gmail.com")
-
-    const { data, error } = await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: ["g4uforlife@gmail.com"],
+    // Send email with styled HTML
+    const mailOptions = {
+      from: `"Portfolio Contact" <${emailUser}>`,
+      to: emailTo,
       replyTo: email,
       subject: `[PORTFOLIO] New message from ${name}`,
       html: `
@@ -127,17 +130,16 @@ ${message}
 --
 YEABSERA SISAY // NEURAL ARCHITECT & FULLSTACK ENGINEER
       `,
-    })
-
-    if (error) {
-      console.error("[v0] Resend error:", error)
-      return NextResponse.json({ error: error.message || "Failed to send email" }, { status: 400 })
     }
 
-    console.log("[v0] Email sent successfully:", data)
-    return NextResponse.json({ success: true, data })
+    // Send the email
+    const info = await transporter.sendMail(mailOptions)
+
+    console.log("[v0] Email sent successfully:", info.messageId)
+    return NextResponse.json({ success: true, messageId: info.messageId })
   } catch (error) {
-    console.error("[v0] API error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("[v0] Nodemailer error:", error)
+    const errorMessage = error instanceof Error ? error.message : "Failed to send email"
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
