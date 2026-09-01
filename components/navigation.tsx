@@ -39,22 +39,22 @@ export function Navigation() {
           : "bg-background/0"
       }`}
     >
-      <div className="max-w-[720px] mx-auto px-6 py-5 flex items-center justify-between">
+      <div className="max-w-[720px] mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between gap-3">
         {/* Left: Name */}
         <a
-          href="#"
-          className="text-sm font-semibold tracking-tight text-foreground hover:opacity-75 transition-opacity"
+          href="/"
+          className="text-sm font-semibold tracking-tight text-foreground hover:opacity-75 transition-opacity shrink-0"
         >
           Yeabsera Sisay
         </a>
 
         {/* Right: Minimal text links */}
-        <nav className="flex items-center gap-4 sm:gap-5 text-xs text-muted-foreground">
+        <nav className="flex items-center gap-3 sm:gap-4 text-xs text-muted-foreground flex-wrap justify-end">
           <a
             href="https://github.com/yab-g4u"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-foreground transition-colors inline-flex items-center gap-0.5"
+            className="hover:text-foreground transition-colors inline-flex items-center gap-0.5 py-1"
           >
             <span>GitHub</span>
             <ArrowUpRight className="w-3 h-3 opacity-60" />
@@ -64,7 +64,7 @@ export function Navigation() {
             href="https://www.linkedin.com/in/yeabsera-sisay-b5615b240"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-foreground transition-colors inline-flex items-center gap-0.5"
+            className="hover:text-foreground transition-colors inline-flex items-center gap-0.5 py-1"
           >
             <span>LinkedIn</span>
             <ArrowUpRight className="w-3 h-3 opacity-60" />
@@ -74,24 +74,23 @@ export function Navigation() {
             href="/cv/YEABSERA-SISAY.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-foreground transition-colors inline-flex items-center gap-0.5"
+            className="hover:text-foreground transition-colors inline-flex items-center gap-0.5 py-1"
           >
             <span>Resume</span>
             <ArrowUpRight className="w-3 h-3 opacity-60" />
           </a>
 
           <a
-            href="mailto:g4uforlife@gmail.com"
-            className="hover:text-foreground transition-colors inline-flex items-center gap-0.5"
+            href="#contact"
+            className="hover:text-foreground transition-colors inline-flex items-center gap-0.5 py-1 font-medium text-foreground/90"
           >
-            <span>Email</span>
-            <ArrowUpRight className="w-3 h-3 opacity-60" />
+            <span>Contact</span>
           </a>
 
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            className="p-1 rounded text-muted-foreground hover:text-foreground transition-colors ml-1"
+            className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
           >
             {theme === "light" ? (
               <Moon className="w-3.5 h-3.5" />

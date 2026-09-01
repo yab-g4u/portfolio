@@ -8,9 +8,9 @@ export function ExtendedProjects() {
       name: "Suno",
       description:
         "A computer vision project designed to help children establish speech and talking through visual interaction and movement tracking.",
-      tags: ["Computer Vision", "Pose Estimation", "Interactive Audio", "Python"],
-      github: "https://github.com/yab-g4u",
-      demo: null,
+      tags: ["Computer Vision", "Pose Estimation", "Interactive Audio", "TypeScript", "React"],
+      github: null,
+      demo: "https://sunoos.vercel.app/",
     },
     {
       name: "Surf",

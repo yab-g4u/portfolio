@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowUpRight, Github, Sparkles, Terminal, ShieldCheck, Search, Activity, Cpu } from "lucide-react"
+import { ArrowUpRight, Github, Sparkles, Terminal, ShieldCheck, Search, Activity, Cpu, Eye } from "lucide-react"
 
 interface FavoriteProject {
   id: string
@@ -19,7 +19,7 @@ interface FavoriteProject {
   }[]
   metrics: { label: string; value: string }[]
   tech: string[]
-  github: string
+  github?: string | null
   demo?: string | null
 }
 
@@ -188,6 +188,47 @@ const FAVORITES: FavoriteProject[] = [
     github: "https://github.com/yab-g4u/medscop.git",
     demo: "https://medscop.vercel.app/",
   },
+  {
+    id: "suno",
+    number: "05",
+    name: "Suno",
+    badge: "Computer Vision & Assistive AI",
+    category: "Vision-Guided Assistive Interaction",
+    icon: Eye,
+    tagline: "Computer vision & gesture tracking helping children establish speech through interactive play.",
+    description:
+      "An assistive AI interface employing client-side computer vision, real-time facial landmark tracking, and motion kinematics to help children with speech challenges engage in gamified articulation and visual auditory feedback loops.",
+    pipeline: [
+      {
+        step: "01",
+        title: "Low-Latency Video Ingest",
+        detail: "Captures camera frames locally with WebGL/WASM acceleration at 60 FPS directly on the client device.",
+      },
+      {
+        step: "02",
+        title: "Landmark & Pose Extraction",
+        detail: "Runs lightweight on-device vision models for articulatory facial points and gesture coordinates.",
+      },
+      {
+        step: "03",
+        title: "Interactive State Machine",
+        detail: "Maps gestural kinematics into interactive target thresholds in responsive sub-30ms execution loops.",
+      },
+      {
+        step: "04",
+        title: "Auditory Feedback Synthesis",
+        detail: "Generates phonetic cues and adaptive visual milestones to reinforce verbal communication progress.",
+      },
+    ],
+    metrics: [
+      { label: "Inference Latency", value: "< 25ms Real-time" },
+      { label: "Privacy / Architecture", value: "100% Client-Side Vision" },
+      { label: "Core Impact", value: "Assistive Speech & Play" },
+    ],
+    tech: ["Computer Vision", "Pose Estimation", "WebAudio", "Interactive AI", "TypeScript", "React"],
+    github: null,
+    demo: "https://sunoos.vercel.app/",
+  },
 ]
 
 export function FavoriteSpotlight() {
@@ -211,12 +252,12 @@ export function FavoriteSpotlight() {
             </span>
           </div>
           <p className="text-xs text-muted-foreground">
-            A deeper look at four flagship projects spanning developer tools, telecom trust, local IR, and multi-agent coordination.
+            A deeper look at flagship systems spanning developer tools, telecom trust, local IR, multi-agent coordination, and assistive computer vision.
           </p>
         </div>
 
-        {/* Tab Navigation Selector */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {/* Tab Navigation Selector - Responsive Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
           {FAVORITES.map((fav) => {
             const isSelected = fav.id === activeTab
             return (
@@ -226,7 +267,7 @@ export function FavoriteSpotlight() {
                   setActiveTab(fav.id)
                   setActiveStep(0)
                 }}
-                className={`p-3 text-left rounded-md border transition-all ${
+                className={`p-2.5 sm:p-3 text-left rounded-md border transition-all ${
                   isSelected
                     ? "bg-secondary border-foreground/30 shadow-xs"
                     : "bg-secondary/30 border-border hover:bg-secondary/60 text-muted-foreground"
@@ -242,7 +283,7 @@ export function FavoriteSpotlight() {
                     }`}
                   />
                 </div>
-                <div className="text-sm font-semibold text-foreground truncate">
+                <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
                   {fav.name}
                 </div>
                 <div className="text-[10px] font-mono text-muted-foreground truncate pt-0.5">
@@ -254,18 +295,18 @@ export function FavoriteSpotlight() {
         </div>
 
         {/* Selected Project Console Box */}
-        <div className="rounded-lg border border-border bg-card p-5 sm:p-6 space-y-6 shadow-xs">
+        <div className="rounded-lg border border-border bg-card p-4 sm:p-6 space-y-5 sm:space-y-6 shadow-xs">
           {/* Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-border pb-4">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded bg-secondary border border-border text-foreground">
+            <div className="space-y-1.5 min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="p-1.5 rounded bg-secondary border border-border text-foreground shrink-0">
                   <IconComponent className="w-4 h-4 text-accent" />
                 </div>
-                <h3 className="text-lg font-semibold tracking-tight text-foreground">
+                <h3 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
                   {currentProject.name}
                 </h3>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-secondary/80 border border-border text-muted-foreground">
+                <span className="text-[10px] sm:text-[11px] font-mono px-2 py-0.5 rounded bg-secondary/80 border border-border text-muted-foreground truncate max-w-full">
                   {currentProject.badge}
                 </span>
               </div>
@@ -275,7 +316,7 @@ export function FavoriteSpotlight() {
             </div>
 
             {/* Direct Action Links */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
               {currentProject.demo && (
                 <a
                   href={currentProject.demo}
@@ -324,7 +365,7 @@ export function FavoriteSpotlight() {
                   <button
                     key={p.step}
                     onClick={() => setActiveStep(idx)}
-                    className={`p-2.5 rounded-md text-left border transition-all ${
+                    className={`p-2 sm:p-2.5 rounded-md text-left border transition-all ${
                       isActive
                         ? "bg-secondary border-accent/60 shadow-xs"
                         : "bg-secondary/20 border-border/70 hover:bg-secondary/40 text-muted-foreground"
@@ -358,7 +399,7 @@ export function FavoriteSpotlight() {
           </div>
 
           {/* Metrics & Technical Stack */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-border">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-2 border-t border-border">
             {currentProject.metrics.map((m) => (
               <div key={m.label} className="p-2.5 rounded bg-secondary/20 border border-border/60 space-y-0.5">
                 <div className="text-[10px] font-mono uppercase text-muted-foreground">
