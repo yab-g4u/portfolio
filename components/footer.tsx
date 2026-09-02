@@ -1,6 +1,7 @@
 "use client"
 
-import { Github, ArrowUpRight } from "lucide-react"
+import { ArrowUpRight } from "lucide-react"
+import { GitHubBrandIcon, LinkedInBrandIcon } from "@/components/tech-icons"
 
 export function Footer() {
   return (
@@ -8,8 +9,8 @@ export function Footer() {
       {/* GitHub Profile Snippet */}
       <div className="p-4 rounded-lg bg-secondary/40 border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-md bg-background border border-border text-foreground">
-            <Github className="w-4 h-4" />
+          <div className="p-2.5 rounded-md bg-background border border-border text-foreground">
+            <GitHubBrandIcon className="w-4 h-4" />
           </div>
           <div>
             <div className="font-semibold text-foreground text-sm flex items-center gap-1.5">
@@ -26,7 +27,7 @@ export function Footer() {
           href="https://github.com/yab-g4u"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:text-accent transition-colors self-start sm:self-auto"
+          className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:text-accent transition-colors self-start sm:self-auto px-3 py-1.5 rounded bg-secondary/60 hover:bg-secondary border border-border/80"
         >
           <span>View Profile</span>
           <ArrowUpRight className="w-3.5 h-3.5" />
@@ -44,23 +45,25 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-xs font-mono">
+        <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
           <a
             href="https://github.com/yab-g4u"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-foreground transition-colors"
+            className="hover:text-foreground transition-colors inline-flex items-center gap-1"
           >
-            GitHub
+            <GitHubBrandIcon className="w-3 h-3" />
+            <span>GitHub</span>
           </a>
           <span>·</span>
           <a
             href="https://www.linkedin.com/in/yeabsera-sisay-b5615b240"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-foreground transition-colors"
+            className="hover:text-foreground transition-colors inline-flex items-center gap-1"
           >
-            LinkedIn
+            <LinkedInBrandIcon className="w-3 h-3" />
+            <span>LinkedIn</span>
           </a>
           <span>·</span>
           <a

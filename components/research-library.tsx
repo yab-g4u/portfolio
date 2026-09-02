@@ -553,7 +553,7 @@ export function ResearchLibrary() {
   }, [activePaper])
 
   return (
-    <section className="py-12 border-t border-border">
+    <section id="research" className="py-12 border-t border-border">
       <div className="space-y-6">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">

@@ -1,9 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowUpRight, ChevronRight, X, Github, ExternalLink } from "lucide-react"
+import { ArrowUpRight, ChevronRight, X, Github, ExternalLink, FileCode, Layers } from "lucide-react"
 import type { Project } from "@/types/project"
 import { projects } from "@/lib/projects-data"
+import { ProjectVisual } from "@/components/project-visual"
+import {
+  PythonIcon,
+  FastApiIcon,
+  TypeScriptIcon,
+  NextjsIcon,
+  GitHubBrandIcon,
+} from "@/components/tech-icons"
 
 export function SelectedWork() {
   const [activeProject, setActiveProject] = useState<Project | null>(null)
@@ -37,7 +45,7 @@ export function SelectedWork() {
       number: "03",
       id: "atlas",
       name: "ATLAS",
-      tagline: "AI-powered infrastructure that turns GitHub repositories and professional information into a deployable portfolio.",
+      tagline: "AI-powered infrastructure that turns GitHub repositories into deployable portfolios.",
       description:
         "GitHub intelligence, resume/professional information ingestion, project analysis, design synthesis, portfolio generation, and one-click deployment.",
       tags: ["GitHub Intelligence", "Resume Ingestion", "Design Synthesis", "Next.js", "AI Automation"],
@@ -49,7 +57,7 @@ export function SelectedWork() {
       number: "04",
       id: "ida",
       name: "IDA",
-      tagline: "AI-powered healthcare assistant combining medicine information, pharmacy discovery, location-based services, and a blockchain-powered medicine marketplace.",
+      tagline: "AI-powered healthcare assistant & blockchain pharmaceutical discovery.",
       description:
         "Provides verified medicine discovery, clinical interaction warnings, geographic pharmacy stock locator, and trust-anchored pharmaceutical transactions.",
       tags: ["Healthcare AI", "Search & Discovery", "Location Services", "Blockchain Marketplace", "Python"],
@@ -61,7 +69,7 @@ export function SelectedWork() {
       number: "05",
       id: "datapilot",
       name: "DataPilot",
-      tagline: "An explainable machine-learning platform for financial and microfinance datasets.",
+      tagline: "Explainable machine-learning platform for financial & microfinance datasets.",
       description:
         "Handles data preprocessing, automated machine learning model evaluation, SHAP explainability analysis, PDF audit reports, and FastAPI inference.",
       tags: ["Machine Learning", "SHAP Explainability", "PDF Audits", "FastAPI", "Python"],
@@ -79,27 +87,37 @@ export function SelectedWork() {
   }
 
   return (
-    <section className="py-12 border-t border-border">
+    <section id="selected-work" className="py-12 border-t border-border">
       <div className="space-y-8">
         <div className="flex items-baseline justify-between">
-          <h2 className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-            Selected work
-          </h2>
+          <div className="space-y-1">
+            <h2 className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+              Selected work
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Flagship engineering projects & production architectures.
+            </p>
+          </div>
           <span className="text-xs text-muted-foreground font-mono">01 — 05</span>
         </div>
 
-        {/* Clean Vertical Project List */}
-        <div className="divide-y divide-border">
+        {/* Project List with Mobile Visual Cards & Desktop Editorial Flow */}
+        <div className="space-y-8 divide-y divide-border">
           {selectedProjects.map((p) => (
             <div
               key={p.number}
-              className="py-8 first:pt-2 last:pb-2 group transition-colors"
+              className="pt-8 first:pt-0 group transition-colors space-y-4"
             >
-              <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6 justify-between">
-                {/* Number & Info */}
-                <div className="space-y-2.5 flex-1">
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-xs text-muted-foreground">
+              {/* Abstract Visual Identity Banner */}
+              <div className="block">
+                <ProjectVisual id={p.id} name={p.name} />
+              </div>
+
+              {/* Information Row */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-secondary text-foreground">
                       {p.number}
                     </span>
                     <h3 className="text-base sm:text-lg font-semibold text-foreground tracking-tight group-hover:text-accent transition-colors">
@@ -107,59 +125,93 @@ export function SelectedWork() {
                     </h3>
                   </div>
 
-                  <p className="text-sm text-foreground font-medium leading-relaxed max-w-xl">
-                    {p.tagline}
-                  </p>
-
-                  <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
-                    {p.description}
-                  </p>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pt-1 text-xs text-muted-foreground font-mono">
-                    {p.tags.map((tag, idx) => (
-                      <span key={tag} className="flex items-center gap-2">
-                        <span>{tag}</span>
-                        {idx < p.tags.length - 1 && (
-                          <span className="text-muted-foreground/40">·</span>
-                        )}
-                      </span>
-                    ))}
+                  {/* Desktop Quick Links */}
+                  <div className="hidden sm:flex items-center gap-3 text-xs font-medium shrink-0">
+                    {p.demo && (
+                      <a
+                        href={p.demo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-foreground hover:text-accent inline-flex items-center gap-1 transition-colors"
+                      >
+                        <span>Live Demo</span>
+                        <ArrowUpRight className="w-3.5 h-3.5 opacity-80" />
+                      </a>
+                    )}
+                    {p.github && (
+                      <a
+                        href={p.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
+                      >
+                        <span>GitHub</span>
+                        <ArrowUpRight className="w-3 h-3 opacity-60" />
+                      </a>
+                    )}
+                    <button
+                      onClick={() => handleOpenDetails(p.dataId)}
+                      className="text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5 transition-colors cursor-pointer"
+                    >
+                      <span>Arch Notes</span>
+                      <ChevronRight className="w-3 h-3 opacity-60" />
+                    </button>
                   </div>
                 </div>
 
-                {/* Direct Action Links */}
-                <div className="flex items-center gap-4 text-xs font-medium pt-1 sm:pt-0 shrink-0">
-                  {p.github && (
-                    <a
-                      href={p.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
-                    >
-                      <span>GitHub</span>
-                      <ArrowUpRight className="w-3 h-3 opacity-60" />
-                    </a>
-                  )}
+                <p className="text-sm text-foreground font-medium leading-relaxed">
+                  {p.tagline}
+                </p>
 
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {p.description}
+                </p>
+
+                {/* Technology Badges */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  {p.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-0.5 rounded bg-secondary/70 border border-border/60 text-[11px] font-mono text-muted-foreground"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Mobile Touch-Friendly Action Buttons */}
+                <div className="flex sm:hidden items-center gap-2 pt-2">
                   {p.demo && (
                     <a
                       href={p.demo}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-foreground hover:text-accent inline-flex items-center gap-1 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md bg-foreground text-background text-xs font-medium active:scale-[0.98] transition-transform"
                     >
-                      <span>Demo</span>
-                      <ArrowUpRight className="w-3 h-3 opacity-60" />
+                      <span>Live Demo</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+
+                  {p.github && (
+                    <a
+                      href={p.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md bg-secondary border border-border text-foreground text-xs font-medium active:scale-[0.98] transition-transform"
+                    >
+                      <Github className="w-3.5 h-3.5" />
+                      <span>Code</span>
                     </a>
                   )}
 
                   <button
                     onClick={() => handleOpenDetails(p.dataId)}
-                    className="text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5 transition-colors"
+                    className="p-2 rounded-md bg-secondary/80 border border-border text-muted-foreground hover:text-foreground transition-colors"
+                    title="View Architectural Notes"
+                    aria-label="View Architectural Notes"
                   >
-                    <span>Notes</span>
-                    <ChevronRight className="w-3 h-3 opacity-60" />
+                    <FileCode className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -168,17 +220,17 @@ export function SelectedWork() {
         </div>
       </div>
 
-      {/* Clean Technical Detail Modal */}
+      {/* Technical Detail Modal */}
       {activeProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-background/80 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative w-full max-w-xl bg-card border border-border rounded-lg shadow-xl max-h-[85vh] overflow-y-auto p-6 sm:p-8 space-y-6">
+          <div className="relative w-full max-w-xl bg-card border border-border rounded-lg shadow-xl max-h-[85vh] overflow-y-auto p-5 sm:p-8 space-y-6">
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b border-border pb-4">
               <div>
                 <div className="font-mono text-xs text-muted-foreground mb-1">
                   {activeProject.number} // ARCHITECTURAL NOTES
                 </div>
-                <h3 className="text-xl font-semibold text-foreground">
+                <h3 className="text-lg sm:text-xl font-semibold text-foreground">
                   {activeProject.name}
                 </h3>
               </div>
@@ -196,7 +248,7 @@ export function SelectedWork() {
               <h4 className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
                 What Was Built
               </h4>
-              <p className="text-sm text-foreground leading-relaxed">
+              <p className="text-xs sm:text-sm text-foreground leading-relaxed">
                 {activeProject.whatWasBuilt || activeProject.description}
               </p>
             </div>
@@ -211,7 +263,7 @@ export function SelectedWork() {
                   {activeProject.architectureSteps.map((step) => (
                     <div
                       key={step.step}
-                      className="p-3 rounded bg-secondary/50 border border-border/70 text-xs font-mono space-y-0.5"
+                      className="p-2.5 sm:p-3 rounded bg-secondary/50 border border-border/70 text-xs font-mono space-y-0.5"
                     >
                       <div className="flex items-center gap-2 text-foreground font-semibold">
                         <span className="text-accent">{step.step}</span>
@@ -248,8 +300,8 @@ export function SelectedWork() {
             )}
 
             {/* Modal Links */}
-            <div className="pt-4 border-t border-border flex items-center justify-between">
-              <div className="flex items-center gap-4 text-xs font-medium">
+            <div className="pt-4 border-t border-border flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 text-xs font-medium flex-wrap">
                 {activeProject.github && (
                   <a
                     href={activeProject.github}

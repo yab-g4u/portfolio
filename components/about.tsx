@@ -2,7 +2,7 @@
 
 export function About() {
   return (
-    <section className="py-12 border-t border-border">
+    <section id="about" className="py-12 border-t border-border">
       <div className="space-y-10">
         {/* About Section */}
         <div className="space-y-4">

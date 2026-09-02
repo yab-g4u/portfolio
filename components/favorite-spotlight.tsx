@@ -2,6 +2,15 @@
 
 import { useState } from "react"
 import { ArrowUpRight, Github, Sparkles, Terminal, ShieldCheck, Search, Activity, Cpu, Eye } from "lucide-react"
+import { ProjectVisual } from "@/components/project-visual"
+import {
+  PythonIcon,
+  FastApiIcon,
+  TypeScriptIcon,
+  NextjsIcon,
+  SqliteIcon,
+  GitHubBrandIcon,
+} from "@/components/tech-icons"
 
 interface FavoriteProject {
   id: string
@@ -18,7 +27,7 @@ interface FavoriteProject {
     detail: string
   }[]
   metrics: { label: string; value: string }[]
-  tech: string[]
+  tech: { name: string; icon?: React.ComponentType<{ className?: string }> }[]
   github?: string | null
   demo?: string | null
 }
@@ -61,7 +70,14 @@ const FAVORITES: FavoriteProject[] = [
       { label: "Analysis Mode", value: "Full AST & Commit History" },
       { label: "Output", value: "Next.js + Tailwind App" },
     ],
-    tech: ["TypeScript", "Next.js", "GitHub API", "OpenAI", "Tailwind CSS", "Vercel SDK"],
+    tech: [
+      { name: "TypeScript", icon: TypeScriptIcon },
+      { name: "Next.js", icon: NextjsIcon },
+      { name: "GitHub API", icon: GitHubBrandIcon },
+      { name: "OpenAI" },
+      { name: "Tailwind CSS" },
+      { name: "Vercel SDK" },
+    ],
     github: "https://github.com/yab-g4u/attlas",
     demo: "https://attlas-nu.vercel.app/",
   },
@@ -102,7 +118,14 @@ const FAVORITES: FavoriteProject[] = [
       { label: "Mitigation Latency", value: "< 80ms Carrier Hook" },
       { label: "Target Sector", value: "Mobile Money & African Fintech" },
     ],
-    tech: ["CAMARA APIs", "FastAPI", "Python", "Telecom AI", "Fintech Security", "TypeScript"],
+    tech: [
+      { name: "CAMARA APIs" },
+      { name: "FastAPI", icon: FastApiIcon },
+      { name: "Python", icon: PythonIcon },
+      { name: "Telecom AI" },
+      { name: "Fintech Security" },
+      { name: "TypeScript", icon: TypeScriptIcon },
+    ],
     github: "https://github.com/yab-g4u/shield-guard.git",
     demo: "https://shieldguard.vercel.app/",
   },
@@ -143,7 +166,14 @@ const FAVORITES: FavoriteProject[] = [
       { label: "Index Engine", value: "SQLite FTS5 + MiniLM Vectors" },
       { label: "Fusion Algorithm", value: "Reciprocal Rank Fusion (RRF)" },
     ],
-    tech: ["Python", "SQLite FTS5", "Sentence-Transformers", "BM25 Lexical", "Vector RRF", "FastAPI"],
+    tech: [
+      { name: "Python", icon: PythonIcon },
+      { name: "SQLite FTS5", icon: SqliteIcon },
+      { name: "Sentence-Transformers" },
+      { name: "BM25 Lexical" },
+      { name: "Vector RRF" },
+      { name: "FastAPI", icon: FastApiIcon },
+    ],
     github: "https://github.com/yab-g4u/surf.git",
     demo: null,
   },
@@ -184,7 +214,14 @@ const FAVORITES: FavoriteProject[] = [
       { label: "Core Model", value: "SEIR Stochastic Outbreak Math" },
       { label: "Coordination", value: "Autonomous Multi-Agent Swarm" },
     ],
-    tech: ["CrewAI", "Multi-Agent Systems", "Python", "SEIR Modeling", "Blockchain", "FastAPI"],
+    tech: [
+      { name: "CrewAI" },
+      { name: "Multi-Agent Systems" },
+      { name: "Python", icon: PythonIcon },
+      { name: "SEIR Modeling" },
+      { name: "Blockchain" },
+      { name: "FastAPI", icon: FastApiIcon },
+    ],
     github: "https://github.com/yab-g4u/medscop.git",
     demo: "https://medscop.vercel.app/",
   },
@@ -225,7 +262,14 @@ const FAVORITES: FavoriteProject[] = [
       { label: "Privacy / Architecture", value: "100% Client-Side Vision" },
       { label: "Core Impact", value: "Assistive Speech & Play" },
     ],
-    tech: ["Computer Vision", "Pose Estimation", "WebAudio", "Interactive AI", "TypeScript", "React"],
+    tech: [
+      { name: "Computer Vision" },
+      { name: "Pose Estimation" },
+      { name: "WebAudio" },
+      { name: "Interactive AI" },
+      { name: "TypeScript", icon: TypeScriptIcon },
+      { name: "React" },
+    ],
     github: null,
     demo: "https://sunoos.vercel.app/",
   },
@@ -239,17 +283,20 @@ export function FavoriteSpotlight() {
   const IconComponent = currentProject.icon
 
   return (
-    <section className="py-12 border-t border-border">
+    <section id="spotlight" className="py-12 border-t border-border">
       <div className="space-y-6">
         {/* Section Header */}
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-              Featured systems
-            </span>
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-secondary text-foreground font-semibold">
-              Spotlight
-            </span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                Featured systems
+              </span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-secondary text-foreground font-semibold">
+                Spotlight
+              </span>
+            </div>
+            <span className="text-xs font-mono text-muted-foreground">01 — 05</span>
           </div>
           <p className="text-xs text-muted-foreground">
             A deeper look at flagship systems spanning developer tools, telecom trust, local IR, multi-agent coordination, and assistive computer vision.
@@ -296,6 +343,9 @@ export function FavoriteSpotlight() {
 
         {/* Selected Project Console Box */}
         <div className="rounded-lg border border-border bg-card p-4 sm:p-6 space-y-5 sm:space-y-6 shadow-xs">
+          {/* Visual Architecture Representation */}
+          <ProjectVisual id={currentProject.id} name={currentProject.name} />
+
           {/* Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-border pb-4">
             <div className="space-y-1.5 min-w-0">
@@ -412,17 +462,21 @@ export function FavoriteSpotlight() {
             ))}
           </div>
 
-          {/* Tech tags */}
+          {/* Tech tags with real icons */}
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
             <span className="text-[11px] font-mono text-muted-foreground mr-1">Stack:</span>
-            {currentProject.tech.map((t) => (
-              <span
-                key={t}
-                className="px-2 py-0.5 rounded bg-secondary text-[11px] font-mono text-foreground border border-border/60"
-              >
-                {t}
-              </span>
-            ))}
+            {currentProject.tech.map((t) => {
+              const IconComp = t.icon
+              return (
+                <span
+                  key={t.name}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-secondary text-[11px] font-mono text-foreground border border-border/60"
+                >
+                  {IconComp && <IconComp className="w-3 h-3 text-accent" />}
+                  <span>{t.name}</span>
+                </span>
+              )
+            })}
           </div>
         </div>
       </div>
