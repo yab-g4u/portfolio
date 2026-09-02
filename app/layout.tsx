@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
+import { ResumeProvider } from "@/lib/resume-context"
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -59,8 +60,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground`}>
-        {children}
+        <ResumeProvider>
+          {children}
+        </ResumeProvider>
       </body>
     </html>
   )
 }
+

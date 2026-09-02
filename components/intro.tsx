@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowUpRight, Mail, FileText, Sparkles, MapPin } from "lucide-react"
+import { ArrowUpRight, Mail, FileText, Sparkles, MapPin, Eye } from "lucide-react"
 import {
   GitHubBrandIcon,
   LinkedInBrandIcon,
@@ -14,8 +14,11 @@ import {
   DockerIcon,
   SqliteIcon,
 } from "@/components/tech-icons"
+import { useResume } from "@/lib/resume-context"
 
 export function Intro() {
+  const { openResume } = useResume()
+
   const coreTech = [
     { name: "Python", icon: PythonIcon },
     { name: "Next.js", icon: NextjsIcon },
@@ -92,16 +95,14 @@ export function Intro() {
             <ArrowUpRight className="w-3 h-3 text-muted-foreground opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </a>
 
-          <a
-            href="/cv/YEABSERA-SISAY.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center sm:justify-start gap-2 px-3 py-2 rounded-md bg-secondary/40 hover:bg-secondary border border-border/60 text-muted-foreground hover:text-foreground font-medium transition-all group active:scale-[0.98]"
+          <button
+            onClick={openResume}
+            className="flex items-center justify-center sm:justify-start gap-2 px-3 py-2 rounded-md bg-foreground text-background font-medium hover:opacity-90 transition-all group active:scale-[0.98] shadow-xs cursor-pointer"
           >
-            <FileText className="w-3.5 h-3.5 opacity-80" />
-            <span>Resume</span>
-            <ArrowUpRight className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
-          </a>
+            <FileText className="w-3.5 h-3.5" />
+            <span>View Resume</span>
+            <Eye className="w-3 h-3 opacity-70 group-hover:opacity-100 transition-opacity" />
+          </button>
         </div>
 
         {/* Recognizable Technology Chips */}

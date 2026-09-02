@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react"
 import { ArrowUpRight, Moon, Sun, Menu, X, Sparkles, FileText, Mail } from "lucide-react"
 import { GitHubBrandIcon, LinkedInBrandIcon } from "@/components/tech-icons"
+import { useResume } from "@/lib/resume-context"
 
 export function Navigation() {
   const [theme, setTheme] = useState<"light" | "dark">("light")
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { openResume } = useResume()
 
   useEffect(() => {
     const saved = localStorage.getItem("theme") as "light" | "dark" | null
@@ -47,6 +49,12 @@ export function Navigation() {
 
   const handleNavClick = () => {
     setMobileMenuOpen(false)
+  }
+
+  const handleResumeClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setMobileMenuOpen(false)
+    openResume()
   }
 
   return (
@@ -91,15 +99,14 @@ export function Navigation() {
             <ArrowUpRight className="w-3 h-3 opacity-60" />
           </a>
 
-          <a
-            href="/cv/YEABSERA-SISAY.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-foreground transition-colors inline-flex items-center gap-1 py-1"
+          <button
+            onClick={handleResumeClick}
+            className="hover:text-foreground transition-colors inline-flex items-center gap-1.5 py-1 text-muted-foreground cursor-pointer group"
           >
+            <FileText className="w-3 h-3 opacity-70 group-hover:opacity-100 transition-opacity" />
             <span>Resume</span>
-            <ArrowUpRight className="w-3 h-3 opacity-60" />
-          </a>
+            <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-secondary text-accent font-medium">CV</span>
+          </button>
 
           <a
             href="#contact"
@@ -197,15 +204,13 @@ export function Navigation() {
                 <span>LinkedIn</span>
               </a>
 
-              <a
-                href="/cv/YEABSERA-SISAY.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-1.5 p-2 rounded-md bg-secondary/60 text-foreground font-medium"
+              <button
+                onClick={handleResumeClick}
+                className="flex-1 flex items-center justify-center gap-1.5 p-2 rounded-md bg-foreground text-background font-medium"
               >
                 <FileText className="w-3.5 h-3.5" />
-                <span>Resume</span>
-              </a>
+                <span>Resume (CV)</span>
+              </button>
             </div>
           </div>
         </div>
