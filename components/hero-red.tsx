@@ -58,11 +58,11 @@ export function HeroRed() {
                 <ArrowUpRight className="w-4 h-4" />
               </a>
               <Link className="pill" href="/writing">
-                <BookOpen className="w-4 h-4 text-[#ffb3b3]" />
+                <BookOpen className="w-4 h-4 text-accent dark:text-[#ffb3b3]" />
                 <span>Writing</span>
               </Link>
               <button type="button" className="pill" onClick={openResume}>
-                <FileText className="w-4 h-4 text-[#ffb3b3]" />
+                <FileText className="w-4 h-4 text-accent dark:text-[#ffb3b3]" />
                 <span>Resume (CV)</span>
               </button>
               <a className="pill" href="#contact">

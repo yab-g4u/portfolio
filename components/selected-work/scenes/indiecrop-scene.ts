@@ -16,9 +16,11 @@ export function createIndieCropScene({
   isMobile,
   reducedMotion,
   aspect,
+  isLight = false,
 }: SceneCreateOptions): SceneHandle {
   const scene = new THREE.Scene()
-  scene.fog = new THREE.FogExp2(0x2a0507, 0.017)
+  const fog = new THREE.FogExp2(isLight ? 0xf7e6e4 : 0x2a0507, isLight ? 0.014 : 0.017)
+  scene.fog = fog
   const camera = new THREE.PerspectiveCamera(50, aspect || 1, 0.1, 300)
 
   const geometries: THREE.BufferGeometry[] = []
@@ -38,7 +40,7 @@ export function createIndieCropScene({
   }
   tg.computeVertexNormals()
   const tMat = new THREE.MeshStandardMaterial({
-    color: 0x3a0d08,
+    color: isLight ? 0xc49588 : 0x3a0d08,
     flatShading: true,
     roughness: 1,
   })
@@ -93,7 +95,7 @@ export function createIndieCropScene({
   const px = 2
   const pz = 0
   const pin = new THREE.Group()
-  const pm = new THREE.MeshBasicMaterial({ color: 0xffffff })
+  const pm = new THREE.MeshBasicMaterial({ color: isLight ? 0x18181b : 0xffffff })
   const headGeo = new THREE.SphereGeometry(0.4, 16, 10)
   const bodyGeo = new THREE.ConeGeometry(0.3, 0.9, 12)
   bodyGeo.rotateX(Math.PI)
@@ -192,12 +194,20 @@ export function createIndieCropScene({
     materials.forEach((m) => m.dispose())
   }
 
+  const setTheme = (light: boolean) => {
+    fog.color.setHex(light ? 0xf7e6e4 : 0x2a0507)
+    fog.density = light ? 0.014 : 0.017
+    tMat.color.setHex(light ? 0xc49588 : 0x3a0d08)
+    pm.color.setHex(light ? 0x18181b : 0xffffff)
+  }
+
   return {
     scene,
     camera,
-    bgHex: "#140406",
-    fogHex: "#2a0507",
+    bgHex: isLight ? "#f4f3f0" : "#140406",
+    fogHex: isLight ? "#f7e6e4" : "#2a0507",
     update,
+    setTheme,
     resize,
     dispose,
   }

@@ -95,7 +95,7 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
       />
 
       <div
-        className={`relative z-10 w-full bg-[#120607] border border-[#ff2b2b]/40 shadow-[0_0_90px_#d6040744] flex flex-col overflow-hidden transition-all duration-200 ${
+        className={`relative z-10 w-full bg-card dark:bg-[#120607] text-foreground border border-border dark:border-[#ff2b2b]/40 shadow-[0_24px_80px_rgba(0,0,0,0.3)] dark:shadow-[0_0_90px_#d6040744] flex flex-col overflow-hidden transition-all duration-200 ${
           isFullscreen
             ? "max-w-full h-full max-h-full rounded-none"
             : "max-w-4xl h-[92vh] max-h-[880px] rounded-[24px]"

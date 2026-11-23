@@ -13,6 +13,8 @@ export interface ChapterMeta {
   /** CSS & WebGL atmospheric accent colors for seamless fog/background transitions */
   bgHex: string
   fogHex: string
+  bgHexLight: string
+  fogHexLight: string
   accentHex: string
   scrimVariant: "bottom" | "left" | "ambient"
 }
@@ -20,18 +22,19 @@ export interface ChapterMeta {
 /**
  * Adjust scroll length of the opening title beat ("Selected Work · 04 projects").
  */
-export const OPENER_SCROLL_VH = 95
+export const OPENER_SCROLL_VH = 70
 
 /**
  * Duration (in ms) of the crimson wipe transition between chapters.
  * Kept within the 400–600ms cinematic range.
  */
-export const TRANSITION_DURATION_MS = 500
+export const TRANSITION_DURATION_MS = 460
 
 /**
- * Scroll smoothing factor applied per animation frame: cp += (targetP - cp) * SMOOTH_FACTOR.
+ * Frame-rate independent exponential damping rate: alpha = 1 - Math.exp(-DAMP_LAMBDA * dt).
+ * Gives the exact feel of ~0.08 at 60fps while remaining silky-smooth on 120Hz/ProMotion or slower screens.
  */
-export const SMOOTH_FACTOR = 0.08
+export const DAMP_LAMBDA = 13
 
 /**
  * Ordered chapter sequence: Probe -> Medscope -> IndieCrop -> IDA
@@ -44,7 +47,7 @@ export const CHAPTERS: ChapterMeta[] = [
     title: "Probe",
     tagline: "Put your idea under pressure",
     badge: "Stark Hackathon · 3rd place",
-    scrollVh: 760,
+    scrollVh: 540,
     subChapters: [
       "Idea",
       "Retrieve",
@@ -58,6 +61,8 @@ export const CHAPTERS: ChapterMeta[] = [
     ],
     bgHex: "#150304",
     fogHex: "#240406",
+    bgHexLight: "#f4f2f2",
+    fogHexLight: "#f9e7e8",
     accentHex: "#ff2b2b",
     scrimVariant: "bottom",
   },
@@ -67,10 +72,12 @@ export const CHAPTERS: ChapterMeta[] = [
     title: "Medscope",
     tagline: "Simulated outbreak response, AI multi-agent public health",
     badge: "African Blockchain Championship 2025 · 2nd place",
-    scrollVh: 560,
+    scrollVh: 420,
     subChapters: ["Overview", "Simulation", "Agents", "Funding", "Data", "Live demo"],
     bgHex: "#0d0305",
     fogHex: "#1c0305",
+    bgHexLight: "#f4f2f3",
+    fogHexLight: "#f7e5e6",
     accentHex: "#d60407",
     scrimVariant: "left",
   },
@@ -80,10 +87,12 @@ export const CHAPTERS: ChapterMeta[] = [
     title: "IndieCrop",
     tagline: "Smarter farming for Ethiopia",
     badge: "AI · Agritech",
-    scrollVh: 560,
+    scrollVh: 420,
     subChapters: ["Overview", "Mission", "Field Agent", "NGO / FAO", "Government", "Impact"],
     bgHex: "#140406",
     fogHex: "#2a0507",
+    bgHexLight: "#f4f3f0",
+    fogHexLight: "#f7e6e4",
     accentHex: "#4ade80",
     scrimVariant: "ambient",
   },
@@ -93,10 +102,12 @@ export const CHAPTERS: ChapterMeta[] = [
     title: "IDA",
     tagline: "Find any medicine, in your language, near you",
     badge: "Healthcare · Pharma AI",
-    scrollVh: 560,
+    scrollVh: 420,
     subChapters: ["01 / Search", "02 / Language", "03 / Pharmacies", "04 / Safety", "05 / Done"],
     bgHex: "#100304",
     fogHex: "#1e0406",
+    bgHexLight: "#f4f2f3",
+    fogHexLight: "#f9e7e8",
     accentHex: "#ff4a4a",
     scrimVariant: "ambient",
   },

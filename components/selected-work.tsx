@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import * as THREE from "three"
+import { useTheme } from "next-themes"
 import { ArrowDown } from "lucide-react"
 import "./selected-work/selected-work.css"
 import {
   CHAPTERS,
   CHAPTER_RANGES,
+  DAMP_LAMBDA,
   OPENER_END_P,
-  SMOOTH_FACTOR,
   TOTAL_SCROLL_VH,
   TRANSITION_DURATION_MS,
 } from "./selected-work/chapters-config"
@@ -16,7 +17,6 @@ import {
   clamp01,
   detectSoftwareWebGL,
   type MedscopeParams,
-  type MedscopeTelemetry,
   type SceneCreateOptions,
   type SceneHandle,
 } from "./selected-work/scenes/types"
@@ -50,6 +50,9 @@ function createSceneForChapter(
 }
 
 export function SelectedWork() {
+  const { resolvedTheme } = useTheme()
+  const isLight = resolvedTheme === "light"
+
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const stageRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -67,12 +70,8 @@ export function SelectedWork() {
     vaccination: 20,
     delay: 18,
   })
-  const [medscopeTelemetry, setMedscopeTelemetry] = useState<MedscopeTelemetry>({
-    infectedPct: 0,
-    day: 0,
-  })
 
-  // Mutable refs for 60fps RAF loop without tearing down renderer
+  // Mutable refs for 60fps+ RAF loop without triggering React reconciliation
   const renderedChapterRef = useRef<number>(-1)
   const desiredChapterRef = useRef<number>(-1)
   const beatIndexRef = useRef<number>(0)
@@ -83,15 +82,44 @@ export function SelectedWork() {
   const isWipingRef = useRef<boolean>(false)
   const isVisibleRef = useRef<boolean>(false)
   const medscopeParamsRef = useRef<MedscopeParams>(medscopeParams)
+  const medscopeDayRef = useRef<number>(0)
+  const medscopePctRef = useRef<number>(0)
+  const hudDayRef = useRef<HTMLSpanElement | null>(null)
   const pointerRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
 
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
   const activeSceneRef = useRef<SceneHandle | null>(null)
+  const isSoftwareGlRef = useRef<boolean>(false)
   const reducedMotionRef = useRef<boolean>(false)
+  const isLightRef = useRef<boolean>(isLight)
 
   useEffect(() => {
     medscopeParamsRef.current = medscopeParams
   }, [medscopeParams])
+
+  // Live theme synchronization with active 3D scene without tearing down WebGL context
+  useEffect(() => {
+    isLightRef.current = isLight
+    if (activeSceneRef.current?.setTheme) {
+      activeSceneRef.current.setTheme(isLight)
+      if (reducedMotionRef.current && rendererRef.current) {
+        activeSceneRef.current.update(
+          clamp01(smoothPRef.current),
+          0,
+          pointerRef.current,
+          {
+            medscope: medscopeParamsRef.current,
+            chapterEnterTime: chapterEnterTimeRef.current,
+            now: performance.now(),
+          }
+        )
+        rendererRef.current.render(
+          activeSceneRef.current.scene,
+          activeSceneRef.current.camera
+        )
+      }
+    }
+  }, [isLight])
 
   // Track prefers-reduced-motion live
   useEffect(() => {
@@ -104,6 +132,31 @@ export function SelectedWork() {
     sync()
     mq.addEventListener("change", sync)
     return () => mq.removeEventListener("change", sync)
+  }, [])
+
+  const applyMedscopeTelemetryDom = useCallback((day: number, infectedPct: number) => {
+    if (day !== medscopeDayRef.current) {
+      medscopeDayRef.current = day
+      const padded = String(day).padStart(2, "0")
+      if (hudDayRef.current) {
+        hudDayRef.current.textContent = ` · Day ${padded} / 60`
+      }
+      const wrap = wrapRef.current
+      if (wrap) {
+        wrap.querySelectorAll("[data-medscope-day]").forEach((el) => {
+          el.textContent = padded
+        })
+      }
+    }
+    if (infectedPct !== medscopePctRef.current) {
+      medscopePctRef.current = infectedPct
+      const wrap = wrapRef.current
+      if (wrap) {
+        wrap.querySelectorAll("[data-medscope-pct]").forEach((el) => {
+          el.textContent = String(infectedPct)
+        })
+      }
+    }
   }, [])
 
   const swapSceneImmediately = useCallback((nextIdx: number) => {
@@ -119,12 +172,17 @@ export function SelectedWork() {
       const aspect = rect.height > 0 ? rect.width / rect.height : window.innerWidth / window.innerHeight
       const isMobile = window.innerWidth < 800
       try {
-        activeSceneRef.current = createSceneForChapter(nextIdx, {
+        const sceneHandle = createSceneForChapter(nextIdx, {
           renderer,
           isMobile,
           reducedMotion: reducedMotionRef.current,
           aspect,
+          isLight: isLightRef.current,
         })
+        if (sceneHandle && !isSoftwareGlRef.current) {
+          renderer.compile(sceneHandle.scene, sceneHandle.camera)
+        }
+        activeSceneRef.current = sceneHandle
       } catch {
         activeSceneRef.current = null
       }
@@ -133,6 +191,8 @@ export function SelectedWork() {
     renderedChapterRef.current = nextIdx
     smoothPRef.current = localTargetPRef.current
     chapterEnterTimeRef.current = performance.now()
+    medscopeDayRef.current = -1
+    medscopePctRef.current = -1
     setRenderedChapter(nextIdx)
 
     if (nextIdx >= 0) {
@@ -160,6 +220,7 @@ export function SelectedWork() {
     if (!wrap || !stage || !canvas) return
 
     const isSoftwareGl = detectSoftwareWebGL()
+    isSoftwareGlRef.current = isSoftwareGl
     let renderer: THREE.WebGLRenderer | null = null
     try {
       renderer = new THREE.WebGLRenderer({
@@ -230,8 +291,8 @@ export function SelectedWork() {
             if (desiredChapterRef.current !== renderedChapterRef.current) {
               triggerTransition(desiredChapterRef.current)
             }
-          }, 30)
-        }, halfMs + 40)
+          }, 24)
+        }, halfMs + 30)
       }, halfMs)
     }
 
@@ -261,7 +322,7 @@ export function SelectedWork() {
     computeScroll()
     window.addEventListener("scroll", computeScroll, { passive: true })
 
-    // Clock & active-only RAF loop managed by IntersectionObserver
+    // Frame-rate independent clock & visibility-gated RAF loop
     const clock = new THREE.Clock()
     let rafId = 0
 
@@ -269,16 +330,25 @@ export function SelectedWork() {
       rafId = window.requestAnimationFrame(frameLoop)
       if (!isVisibleRef.current || reducedMotionRef.current) return
 
-      const elapsed = clock.getElapsedTime()
+      const dt = Math.min(clock.getDelta(), 0.05)
+      const elapsed = clock.elapsedTime
       const now = performance.now()
       const chIdx = renderedChapterRef.current
 
       if (chIdx >= 0) {
-        smoothPRef.current += (localTargetPRef.current - smoothPRef.current) * SMOOTH_FACTOR
+        const targetP = localTargetPRef.current
+        const diff = targetP - smoothPRef.current
+        if (Math.abs(diff) < 0.0002) {
+          smoothPRef.current = targetP
+        } else {
+          const alpha = 1 - Math.exp(-DAMP_LAMBDA * dt)
+          smoothPRef.current += diff * alpha
+        }
+
         const p = clamp01(smoothPRef.current)
         const ch = CHAPTERS[chIdx]
 
-        // Update active beat & HUD sub-chapter label
+        // Update active beat & HUD sub-chapter label only on discrete beat transitions
         const maxBeat = ch.id === "probe" ? 8 : 5
         const nextBeat = Math.min(maxBeat, Math.round(p * maxBeat))
         if (nextBeat !== beatIndexRef.current) {
@@ -296,18 +366,17 @@ export function SelectedWork() {
           setSubLabel(nextSub)
         }
 
-        // Update active Three.js scene
+        // Update active Three.js scene with imperative telemetry DOM updates
         if (activeSceneRef.current && renderer) {
           activeSceneRef.current.update(p, elapsed, pointerRef.current, {
             medscope: medscopeParamsRef.current,
-            onMedscopeTelemetry: (tel) => setMedscopeTelemetry(tel),
+            onMedscopeTelemetry: (tel) => applyMedscopeTelemetryDom(tel.day, tel.infectedPct),
             chapterEnterTime: chapterEnterTimeRef.current,
             now,
           })
           renderer.render(activeSceneRef.current.scene, activeSceneRef.current.camera)
         }
       } else if (renderer) {
-        // Clear during Opener beat
         renderer.clear()
       }
     }
@@ -316,6 +385,7 @@ export function SelectedWork() {
       (entries) => {
         isVisibleRef.current = entries[0]?.isIntersecting ?? false
         if (isVisibleRef.current) {
+          clock.getDelta()
           computeScroll()
         }
       },
@@ -343,7 +413,7 @@ export function SelectedWork() {
         rendererRef.current = null
       }
     }
-  }, [swapSceneImmediately])
+  }, [applyMedscopeTelemetryDom, swapSceneImmediately])
 
   const scrollToChapter = useCallback(
     (index: number) => {
@@ -364,8 +434,20 @@ export function SelectedWork() {
 
   const currentChapter = renderedChapter >= 0 ? CHAPTERS[renderedChapter] : null
   const stageStyle = {
-    "--sw-stage-bg": currentChapter ? currentChapter.bgHex : "#0a0a0a",
-    "--sw-stage-fog": currentChapter ? currentChapter.fogHex : "#2a0406",
+    "--sw-stage-bg": currentChapter
+      ? isLight
+        ? currentChapter.bgHexLight
+        : currentChapter.bgHex
+      : isLight
+        ? "#f4f2f3"
+        : "#0a0a0a",
+    "--sw-stage-fog": currentChapter
+      ? isLight
+        ? currentChapter.fogHexLight
+        : currentChapter.fogHex
+      : isLight
+        ? "#f8e4e6"
+        : "#2a0406",
   } as React.CSSProperties
 
   const curtainClass =
@@ -409,7 +491,7 @@ export function SelectedWork() {
             <div className="sw-pn-title">{curtainLabel}</div>
           </div>
 
-          {/* Persistent Selected Work HUD (offset cleanly below main site dock) */}
+          {/* Persistent Selected Work HUD */}
           <div className="sw-hud">
             <div className="sw-hud-left">
               <span className="sw-hud-idx">
@@ -421,9 +503,10 @@ export function SelectedWork() {
 
             <div className="sw-hud-right">
               <span className="sw-hud-sub">
-                {currentChapter?.id === "medscope"
-                  ? `${subLabel} · Day ${String(medscopeTelemetry.day).padStart(2, "0")} / 60`
-                  : subLabel}
+                {subLabel}
+                {currentChapter?.id === "medscope" && (
+                  <span ref={hudDayRef}> · Day 00 / 60</span>
+                )}
               </span>
             </div>
           </div>
@@ -468,7 +551,7 @@ export function SelectedWork() {
                         className="sw-opener-btn"
                         onClick={() => scrollToChapter(idx)}
                       >
-                        <span className="text-[#ff6a6a]">{ch.number}</span>
+                        <span className="text-[#d60407] dark:text-[#ff6a6a]">{ch.number}</span>
                         <span>{ch.title}</span>
                       </button>
                     ))}
@@ -502,7 +585,6 @@ export function SelectedWork() {
                 beatIndex={beatIndex}
                 reducedMotion={reducedMotion}
                 params={medscopeParams}
-                telemetry={medscopeTelemetry}
                 onChangeParams={setMedscopeParams}
                 onJumpToChapter={scrollToChapter}
               />

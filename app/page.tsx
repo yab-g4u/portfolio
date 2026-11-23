@@ -17,7 +17,7 @@ export default function Portfolio() {
   const posts = getAllPosts()
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans overflow-x-clip">
+    <div className="min-h-screen bg-background text-foreground font-sans overflow-x-clip">
       <Preloader />
       <Navigation />
 

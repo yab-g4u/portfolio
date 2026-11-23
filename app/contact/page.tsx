@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-[#d60407]/40 selection:text-white font-sans flex flex-col justify-between overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground selection:bg-[#d60407]/30 selection:text-foreground font-sans flex flex-col justify-between overflow-x-clip">
       {/* Top Fixed Navigation */}
       <Navigation />
 

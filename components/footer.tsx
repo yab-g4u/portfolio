@@ -13,11 +13,10 @@ export function Footer() {
       </div>
 
       <p
-        className="glow"
+        className="glow text-foreground"
         style={{
           fontFamily: "var(--font-serif)",
           fontSize: "26px",
-          color: "#fff",
         }}
       >
         Yeabsera Sisay
@@ -26,12 +25,12 @@ export function Footer() {
         AI Engineer &amp; Full-Stack Builder · @yab-g4u · 23 public repositories
       </p>
 
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-sm text-white/75">
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
         <a
           href="https://github.com/yab-g4u"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:text-white transition-colors"
+          className="hover:text-foreground transition-colors"
         >
           GitHub
         </a>
@@ -40,24 +39,24 @@ export function Footer() {
           href="https://www.linkedin.com/in/yeabsera-sisay-b5615b240"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:text-white transition-colors"
+          className="hover:text-foreground transition-colors"
         >
           LinkedIn
         </a>
         <span>·</span>
-        <Link href="/writing" className="hover:text-white transition-colors">
+        <Link href="/writing" className="hover:text-foreground transition-colors">
           Writing
         </Link>
         <span>·</span>
         <button
           type="button"
           onClick={openResume}
-          className="hover:text-white transition-colors cursor-pointer"
+          className="hover:text-foreground transition-colors cursor-pointer"
         >
           Resume (CV)
         </button>
         <span>·</span>
-        <a href="mailto:g4uforlife@gmail.com" className="hover:text-white transition-colors">
+        <a href="mailto:g4uforlife@gmail.com" className="hover:text-foreground transition-colors">
           Email
         </a>
       </div>

@@ -56,7 +56,9 @@ export function createMedscopeScene({
   isMobile,
   reducedMotion,
   aspect,
+  isLight = false,
 }: SceneCreateOptions): SceneHandle {
+  let lightMode = isLight
   const scene = new THREE.Scene()
   const camera = new THREE.PerspectiveCamera(45, aspect || 1, 0.1, 300)
   const group = new THREE.Group()
@@ -136,7 +138,12 @@ export function createMedscopeScene({
   textures.push(rt)
 
   const rings = hubVecs.map((v) => {
-    const mat = new THREE.SpriteMaterial({ map: rt, transparent: true, depthTest: false })
+    const mat = new THREE.SpriteMaterial({
+      map: rt,
+      color: lightMode ? 0xd60407 : 0xffffff,
+      transparent: true,
+      depthTest: false,
+    })
     materials.push(mat)
     const s = new THREE.Sprite(mat)
     s.position.copy(v)
@@ -147,7 +154,11 @@ export function createMedscopeScene({
   const lg = new THREE.BufferGeometry().setFromPoints(
     EDGES.flatMap((e) => [hubVecs[e[0]], hubVecs[e[1]]])
   )
-  const lm = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 })
+  const lm = new THREE.LineBasicMaterial({
+    color: lightMode ? 0x3b3537 : 0xffffff,
+    transparent: true,
+    opacity: 0,
+  })
   geometries.push(lg)
   materials.push(lm)
   group.add(new THREE.LineSegments(lg, lm))
@@ -159,7 +170,7 @@ export function createMedscopeScene({
   const fm = new THREE.PointsMaterial({
     size: 8 * renderer.getPixelRatio(),
     sizeAttenuation: false,
-    color: 0xffd0d0,
+    color: lightMode ? 0xb80407 : 0xffd0d0,
     map: dt,
     transparent: true,
     opacity: 0,
@@ -201,15 +212,32 @@ export function createMedscopeScene({
       let g: number
       let b: number
       if (rr[i] < vac * 0.8) {
-        r = g = b = 0.95
+        if (lightMode) {
+          r = 0.08
+          g = 0.52
+          b = 0.38
+        } else {
+          r = g = b = 0.95
+        }
       } else if (Tm > tt) {
         infected++
         const f = Math.min(1, (Tm - tt) / 3)
-        r = 1
-        g = b = 0.17 + 0.8 * (1 - f)
+        if (lightMode) {
+          r = 0.84
+          g = b = 0.04 + 0.28 * (1 - f)
+        } else {
+          r = 1
+          g = b = 0.17 + 0.8 * (1 - f)
+        }
       } else {
-        r = 0.36
-        g = b = 0.16
+        if (lightMode) {
+          r = 0.45
+          g = 0.42
+          b = 0.44
+        } else {
+          r = 0.36
+          g = b = 0.16
+        }
       }
       cl[i * 3] = r
       cl[i * 3 + 1] = g
@@ -268,12 +296,22 @@ export function createMedscopeScene({
     materials.forEach((m) => m.dispose())
   }
 
+  const setTheme = (light: boolean) => {
+    lightMode = light
+    lm.color.setHex(light ? 0x3b3537 : 0xffffff)
+    fm.color.setHex(light ? 0xb80407 : 0xffd0d0)
+    rings.forEach((s) => {
+      ;(s.material as THREE.SpriteMaterial).color.setHex(light ? 0xd60407 : 0xffffff)
+    })
+  }
+
   return {
     scene,
     camera,
-    bgHex: "#0d0305",
-    fogHex: "#1c0305",
+    bgHex: isLight ? "#f4f2f3" : "#0d0305",
+    fogHex: isLight ? "#f7e5e6" : "#1c0305",
     update,
+    setTheme,
     resize,
     dispose,
   }

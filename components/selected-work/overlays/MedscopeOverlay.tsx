@@ -1,9 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import Link from "next/link"
 import { ArrowDown, BookOpen, ExternalLink } from "lucide-react"
-import type { MedscopeParams, MedscopeTelemetry } from "../scenes/types"
+import type { MedscopeParams } from "../scenes/types"
 
 const PRESETS: { label: string; transmission: number; vaccination: number; delay: number }[] = [
   { label: "COVID-19", transmission: 1.3, vaccination: 20, delay: 18 },
@@ -15,33 +14,19 @@ export function MedscopeOverlay({
   beatIndex,
   reducedMotion,
   params,
-  telemetry,
   onChangeParams,
   onJumpToChapter,
 }: {
   beatIndex: number
   reducedMotion: boolean
   params: MedscopeParams
-  telemetry: MedscopeTelemetry
   onChangeParams: (next: MedscopeParams) => void
   onJumpToChapter: (index: number) => void
 }) {
-  const [skReady, setSkReady] = useState(reducedMotion)
-
-  useEffect(() => {
-    if (reducedMotion) {
-      setSkReady(true)
-      return
-    }
-    setSkReady(false)
-    const id = window.setTimeout(() => setSkReady(true), 380)
-    return () => window.clearTimeout(id)
-  }, [beatIndex, reducedMotion])
-
   const beatClass = (idx: number, extra = "") =>
     `sw-beat ${extra} ${reducedMotion || beatIndex === idx ? "is-active" : ""}`
 
-  const cardClass = `sw-card sw-rv sw-interactive ${skReady ? "" : "sw-sk"}`
+  const cardClass = "sw-card sw-rv sw-interactive"
 
   return (
     <>
@@ -137,21 +122,25 @@ export function MedscopeOverlay({
             </label>
 
             <div className="sw-read">
-              <div className="sw-big">{telemetry.infectedPct}%</div>
-              <small>of the map infected · Day {String(telemetry.day).padStart(2, "0")} / 60</small>
+              <div className="sw-big">
+                <span data-medscope-pct>0</span>%
+              </div>
+              <small>
+                of the map infected · Day <span data-medscope-day>00</span> / 60
+              </small>
             </div>
 
             <div className="sw-lg">
               <span>
-                <i style={{ background: "#5a2a2a" }} />
+                <i className="sw-dot-sus" />
                 Susceptible
               </span>
               <span>
-                <i style={{ background: "#ff2b2b" }} />
+                <i className="sw-dot-inf" />
                 Infected
               </span>
               <span>
-                <i style={{ background: "#fff" }} />
+                <i className="sw-dot-vac" />
                 Vaccinated
               </span>
             </div>

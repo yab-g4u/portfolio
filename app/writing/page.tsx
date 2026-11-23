@@ -37,7 +37,7 @@ export default function WritingIndexPage() {
   const tags = getAllTags()
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-[#d60407]/40 selection:text-white font-sans">
+    <div className="min-h-screen bg-background text-foreground selection:bg-[#d60407]/30 selection:text-foreground font-sans">
       {/* Top Navigation */}
       <Navigation />
 
@@ -47,26 +47,26 @@ export default function WritingIndexPage() {
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 hover:text-white transition-colors group"
+            className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors group"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
             <span>Back to portfolio</span>
           </Link>
-          <span className="font-mono text-[11px] text-[#ffb0b0]">journal / index</span>
+          <span className="font-mono text-[11px] text-accent dark:text-[#ffb0b0]">journal / index</span>
         </div>
 
         {/* Editorial Introduction */}
         <header className="space-y-3 pt-2 border-b border-border pb-6">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-full bg-[#d60407]/20 text-[#ff6a6a] border border-[#ff2b2b]/30">
+            <span className="p-1.5 rounded-full bg-[#d60407]/15 dark:bg-[#d60407]/20 text-accent dark:text-[#ff6a6a] border border-[#ff2b2b]/30">
               <BookOpen className="w-3.5 h-3.5" />
             </span>
-            <span className="text-xs font-mono uppercase tracking-wider text-[#ffb0b0]">
+            <span className="text-xs font-mono uppercase tracking-wider text-accent dark:text-[#ffb0b0]">
               Engineering Publication
             </span>
           </div>
 
-          <h1 className="font-serif text-4xl sm:text-5xl font-normal tracking-tight text-white glow">
+          <h1 className="font-serif text-4xl sm:text-5xl font-normal tracking-tight text-foreground glow">
             Writing
           </h1>
 

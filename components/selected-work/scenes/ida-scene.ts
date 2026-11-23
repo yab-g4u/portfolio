@@ -13,6 +13,7 @@ export function createIdaScene({
   isMobile,
   reducedMotion,
   aspect,
+  isLight = false,
 }: SceneCreateOptions): SceneHandle {
   const scene = new THREE.Scene()
   const camera = new THREE.PerspectiveCamera(45, aspect || 1, 0.1, 300)
@@ -81,13 +82,18 @@ export function createIdaScene({
   const city = new THREE.Group()
   scene.add(city)
 
-  const gr = new THREE.GridHelper(57.6, 12, 0xff2b2b, 0x6a0408)
+  let gr = new THREE.GridHelper(
+    57.6,
+    12,
+    isLight ? 0xd60407 : 0xff2b2b,
+    isLight ? 0xd0c9cb : 0x6a0408
+  )
   gr.position.y = Y + 0.01
   city.add(gr)
 
   const pgGeo = new THREE.PlaneGeometry(120, 120)
   pgGeo.rotateX(-Math.PI / 2)
-  const pgMat = new THREE.MeshBasicMaterial({ color: 0x100304 })
+  const pgMat = new THREE.MeshBasicMaterial({ color: isLight ? 0xf2eff0 : 0x100304 })
   geometries.push(pgGeo)
   materials.push(pgMat)
   const pg = new THREE.Mesh(pgGeo, pgMat)
@@ -103,7 +109,10 @@ export function createIdaScene({
   }
 
   const boxGeo = new THREE.BoxGeometry(1, 1, 1)
-  const boxMat = new THREE.MeshStandardMaterial({ color: 0x3a0508, roughness: 0.6 })
+  const boxMat = new THREE.MeshStandardMaterial({
+    color: isLight ? 0xd8d0d2 : 0x3a0508,
+    roughness: 0.65,
+  })
   geometries.push(boxGeo)
   materials.push(boxMat)
   const bm = new THREE.InstancedMesh(boxGeo, boxMat, blocks.length)
@@ -127,7 +136,7 @@ export function createIdaScene({
 
   const pins = PINS.map((p, i) => {
     const g = new THREE.Group()
-    const c = i ? 0xff2b2b : 0xffffff
+    const c = i ? (isLight ? 0xd60407 : 0xff2b2b) : isLight ? 0x18181b : 0xffffff
     const headMat = new THREE.MeshBasicMaterial({ color: c })
     const ringMat = new THREE.MeshBasicMaterial({ color: c, transparent: true })
     materials.push(headMat, ringMat)
@@ -143,12 +152,14 @@ export function createIdaScene({
     g.position.set(p[0], Y, p[1])
     g.userData.ring = ring
     g.userData.ringMat = ringMat
+    g.userData.headMat = headMat
+    g.userData.isPrimary = i === 0
     city.add(g)
     return g
   })
 
   const meGeo = new THREE.SphereGeometry(0.45, 16, 10)
-  const meMat = new THREE.MeshBasicMaterial({ color: 0xffffff })
+  const meMat = new THREE.MeshBasicMaterial({ color: isLight ? 0x18181b : 0xffffff })
   geometries.push(meGeo)
   materials.push(meMat)
   const me = new THREE.Mesh(meGeo, meMat)
@@ -167,7 +178,7 @@ export function createIdaScene({
     0.1
   )
   const tubeGeo = new THREE.TubeGeometry(cv, 80, 0.16, 6)
-  const tubeMat = new THREE.MeshBasicMaterial({ color: 0xffffff })
+  const tubeMat = new THREE.MeshBasicMaterial({ color: isLight ? 0x18181b : 0xffffff })
   geometries.push(tubeGeo)
   materials.push(tubeMat)
   const tube = new THREE.Mesh(tubeGeo, tubeMat)
@@ -248,12 +259,38 @@ export function createIdaScene({
     materials.forEach((m) => m.dispose())
   }
 
+  const setTheme = (light: boolean) => {
+    city.remove(gr)
+    gr.geometry.dispose()
+    if (Array.isArray(gr.material)) gr.material.forEach((m) => m.dispose())
+    else gr.material.dispose()
+    gr = new THREE.GridHelper(
+      57.6,
+      12,
+      light ? 0xd60407 : 0xff2b2b,
+      light ? 0xd0c9cb : 0x6a0408
+    )
+    gr.position.y = Y + 0.01
+    city.add(gr)
+
+    pgMat.color.setHex(light ? 0xf2eff0 : 0x100304)
+    boxMat.color.setHex(light ? 0xd8d0d2 : 0x3a0508)
+    meMat.color.setHex(light ? 0x18181b : 0xffffff)
+    tubeMat.color.setHex(light ? 0x18181b : 0xffffff)
+    pins.forEach((g) => {
+      const hex = g.userData.isPrimary ? (light ? 0x18181b : 0xffffff) : light ? 0xd60407 : 0xff2b2b
+      ;(g.userData.headMat as THREE.MeshBasicMaterial).color.setHex(hex)
+      ;(g.userData.ringMat as THREE.MeshBasicMaterial).color.setHex(hex)
+    })
+  }
+
   return {
     scene,
     camera,
-    bgHex: "#100304",
-    fogHex: "#1e0406",
+    bgHex: isLight ? "#f4f2f3" : "#100304",
+    fogHex: isLight ? "#f9e7e8" : "#1e0406",
     update,
+    setTheme,
     resize,
     dispose,
   }

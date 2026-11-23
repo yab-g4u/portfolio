@@ -29,6 +29,7 @@ export interface SceneHandle {
     pointer: { x: number; y: number },
     state: SceneUpdateState
   ) => void
+  setTheme?: (isLight: boolean) => void
   resize: (aspect: number, isMobile: boolean) => void
   dispose: () => void
 }
@@ -38,6 +39,7 @@ export interface SceneCreateOptions {
   isMobile: boolean
   reducedMotion: boolean
   aspect: number
+  isLight?: boolean
 }
 
 export function clamp01(x: number): number {

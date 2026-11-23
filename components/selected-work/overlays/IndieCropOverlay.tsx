@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { ArrowDown, ExternalLink } from "lucide-react"
 
 export function IndieCropOverlay({
@@ -12,22 +11,10 @@ export function IndieCropOverlay({
   reducedMotion: boolean
   onJumpToChapter: (index: number) => void
 }) {
-  const [skReady, setSkReady] = useState(reducedMotion)
-
-  useEffect(() => {
-    if (reducedMotion) {
-      setSkReady(true)
-      return
-    }
-    setSkReady(false)
-    const id = window.setTimeout(() => setSkReady(true), 360)
-    return () => window.clearTimeout(id)
-  }, [beatIndex, reducedMotion])
-
   const beatClass = (idx: number, extra = "") =>
     `sw-beat ${extra} ${reducedMotion || beatIndex === idx ? "is-active" : ""}`
 
-  const cardClass = `sw-card sw-rv sw-interactive ${skReady ? "" : "sw-sk"}`
+  const cardClass = "sw-card sw-rv sw-interactive"
 
   return (
     <>

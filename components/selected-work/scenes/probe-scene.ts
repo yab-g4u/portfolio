@@ -197,6 +197,7 @@ export function createProbeScene({
   isMobile,
   reducedMotion,
   aspect,
+  isLight = false,
 }: SceneCreateOptions): SceneHandle {
   const scene = new THREE.Scene()
   const camera = new THREE.PerspectiveCamera(40, aspect || 1, 0.1, 300)
@@ -297,9 +298,15 @@ export function createProbeScene({
     return toTexture(c)
   })()
 
-  const buildIdeaTex = (n: number, gm: number): THREE.CanvasTexture => {
-    const c = makeCanvas(640, 320)
-    const x = c.getContext("2d")!
+  const ideaCanvas = makeCanvas(640, 320)
+  const ideaCtx = ideaCanvas.getContext("2d")!
+  const currentIdeaTex = new THREE.CanvasTexture(ideaCanvas)
+  currentIdeaTex.colorSpace = THREE.SRGBColorSpace
+  currentIdeaTex.anisotropy = maxAniso
+
+  const redrawIdeaTex = (n: number, gm: number) => {
+    const x = ideaCtx
+    x.clearRect(0, 0, 640, 320)
     drawRoundRect(x, 3, 3, 634, 314, 30)
     x.fillStyle = "#fff"
     x.fill()
@@ -314,10 +321,7 @@ export function createProbeScene({
     x.font = `700 36px ${FONT}`
     const t = IDEA_TEXT.slice(0, n) + (n < IDEA_TEXT.length ? "|" : "")
     wrapLines(x, gm ? `“${t}”` : t, 520, 4).forEach((l, i) => x.fillText(l, 320, 130 + i * 48))
-    const tex = new THREE.CanvasTexture(c)
-    tex.colorSpace = THREE.SRGBColorSpace
-    tex.anisotropy = maxAniso
-    return tex
+    currentIdeaTex.needsUpdate = true
   }
 
   const panelTex = (() => {
@@ -406,10 +410,10 @@ export function createProbeScene({
     }
   })
 
-  let currentIdeaTex = buildIdeaTex(reducedMotion ? IDEA_TEXT.length : 0, 0)
+  redrawIdeaTex(reducedMotion ? IDEA_TEXT.length : 0, 0)
   const idea = makePlane([8, 4], currentIdeaTex, 0.05)
-  let prevIdeaN = -1
-  let prevIdeaG = -1
+  let prevIdeaN = reducedMotion ? IDEA_TEXT.length : 0
+  let prevIdeaG = 0
 
   const TP: [number, number][] = [
     [-13, 4.1],
@@ -481,13 +485,13 @@ export function createProbeScene({
       3
     )
   )
-  const wfMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true })
+  const wfMat = new THREE.LineBasicMaterial({ color: isLight ? 0x18181b : 0xffffff, transparent: true })
   geometries.push(wfGeo)
   materials.push(wfMat)
   U.add(new THREE.LineSegments(wfGeo, wfMat))
 
   const bgwGeo = new THREE.PlaneGeometry(22, 14)
-  const bgwMat = new THREE.MeshBasicMaterial({ color: 0x140304, transparent: true })
+  const bgwMat = new THREE.MeshBasicMaterial({ color: isLight ? 0xfbf9f7 : 0x140304, transparent: true })
   geometries.push(bgwGeo)
   materials.push(bgwMat)
   const bgw = new THREE.Mesh(bgwGeo, bgwMat)
@@ -500,7 +504,7 @@ export function createProbeScene({
   ].map((p) => new THREE.Vector3(p[0], p[1], 0.1))
   const cu = new THREE.CatmullRomCurve3(curvePts)
   const cg = new THREE.BufferGeometry().setFromPoints(cu.getPoints(120))
-  const cm = new THREE.LineBasicMaterial({ color: 0xff5a5a, transparent: true })
+  const cm = new THREE.LineBasicMaterial({ color: isLight ? 0xd60407 : 0xff5a5a, transparent: true })
   geometries.push(cg)
   materials.push(cm)
   U.add(new THREE.Line(cg, cm))
@@ -557,12 +561,7 @@ export function createProbeScene({
     if (n !== prevIdeaN || gm !== prevIdeaG) {
       prevIdeaN = n
       prevIdeaG = gm
-      const nextTex = buildIdeaTex(n, gm)
-      const oldTex = currentIdeaTex
-      currentIdeaTex = nextTex
-      ;(idea.material as THREE.MeshBasicMaterial).map = nextTex
-      ;(idea.material as THREE.MeshBasicMaterial).needsUpdate = true
-      oldTex.dispose()
+      redrawIdeaTex(n, gm)
     }
 
     const hl = [mixRow(u, 7), mixRow(u, 8), mixRow(u, 9), mixRow(u, 10), mixRow(u, 11)]
@@ -681,12 +680,20 @@ export function createProbeScene({
     materials.forEach((m) => m.dispose())
   }
 
+  const setTheme = (light: boolean) => {
+    GRY.setHex(light ? 0x6b7280 : 0x9ca3af)
+    wfMat.color.setHex(light ? 0x18181b : 0xffffff)
+    bgwMat.color.setHex(light ? 0xfbf9f7 : 0x140304)
+    cm.color.setHex(light ? 0xd60407 : 0xff5a5a)
+  }
+
   return {
     scene,
     camera,
-    bgHex: "#150304",
-    fogHex: "#240406",
+    bgHex: isLight ? "#f4f2f2" : "#150304",
+    fogHex: isLight ? "#f9e7e8" : "#240406",
     update,
+    setTheme,
     resize,
     dispose,
   }

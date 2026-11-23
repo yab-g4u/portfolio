@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { ArrowDown, ExternalLink } from "lucide-react"
 
 interface ProbeBeat {
@@ -80,23 +79,6 @@ export function ProbeOverlay({
   reducedMotion: boolean
   onJumpToChapter: (index: number) => void
 }) {
-  const [swapping, setSwapping] = useState(false)
-  const [displayedBeat, setDisplayedBeat] = useState(beatIndex)
-
-  useEffect(() => {
-    if (reducedMotion) {
-      setDisplayedBeat(beatIndex)
-      return
-    }
-    if (beatIndex === displayedBeat) return
-    setSwapping(true)
-    const id = window.setTimeout(() => {
-      setDisplayedBeat(beatIndex)
-      setSwapping(false)
-    }, 180)
-    return () => window.clearTimeout(id)
-  }, [beatIndex, displayedBeat, reducedMotion])
-
   if (reducedMotion) {
     return (
       <div className="flex flex-col gap-6 px-[6%]">
@@ -131,7 +113,7 @@ export function ProbeOverlay({
     )
   }
 
-  const d = PROBE_BEATS[Math.min(PROBE_BEATS.length - 1, Math.max(0, displayedBeat))]
+  const d = PROBE_BEATS[Math.min(PROBE_BEATS.length - 1, Math.max(0, beatIndex))]
 
   return (
     <>
@@ -141,9 +123,7 @@ export function ProbeOverlay({
         ))}
       </div>
 
-      <div
-        className={`sw-cap ${d.isHero ? "sw-cap-hero" : ""} ${swapping ? "sw-swapping" : ""}`}
-      >
+      <div className={`sw-cap ${d.isHero ? "sw-cap-hero" : ""}`}>
         {d.isHero ? (
           <span className="sw-tag" style={{ marginBottom: 10 }}>
             {d.eyebrow}

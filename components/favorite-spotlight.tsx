@@ -307,7 +307,7 @@ export function FavoriteSpotlight() {
             )}
             {currentProject.journalHref && (
               <Link className="pill" href={currentProject.journalHref}>
-                <BookOpen className="w-4 h-4 text-[#ffb3b3]" />
+                <BookOpen className="w-4 h-4 text-accent dark:text-[#ffb3b3]" />
                 <span>Journal Note</span>
               </Link>
             )}
@@ -315,7 +315,7 @@ export function FavoriteSpotlight() {
         </div>
 
         <div>
-          <p style={{ marginBottom: "12px", color: "#ffd0d0" }}>
+          <p className="mb-3 font-medium text-[#8f0306] dark:text-[#ffd0d0]">
             Architecture flow &amp; pipeline · click step to inspect
           </p>
 

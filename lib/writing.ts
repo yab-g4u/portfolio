@@ -124,8 +124,10 @@ export function getAllPosts(includeDrafts = false): WritingPost[] {
  * Retrieve a single post by slug
  */
 export function getPostBySlug(slug: string, includeDrafts = false): WritingPost | null {
+  if (!slug || typeof slug !== "string") return null
   const all = getAllPosts(includeDrafts)
-  const found = all.find((p) => p.slug.toLowerCase() === slug.toLowerCase())
+  const target = slug.toLowerCase()
+  const found = all.find((p) => (p.slug || "").toLowerCase() === target)
   return found || null
 }
 
@@ -145,14 +147,16 @@ export function getFeaturedPost(): WritingPost | null {
 export function getRelatedPosts(currentSlug: string, tags: string[], category: string, limit = 2): WritingPost[] {
   const all = getAllPosts().filter((p) => p.slug !== currentSlug)
   if (all.length === 0) return []
+  const targetCat = (category || "").toLowerCase()
 
   const scored = all.map((post) => {
     let score = 0
-    if (post.category.toLowerCase() === category.toLowerCase()) {
+    if ((post.category || "").toLowerCase() === targetCat) {
       score += 2
     }
-    for (const tag of tags) {
-      if (post.tags.some((t) => t.toLowerCase() === tag.toLowerCase())) {
+    for (const tag of tags || []) {
+      const targetTag = (tag || "").toLowerCase()
+      if (post.tags.some((t) => (t || "").toLowerCase() === targetTag)) {
         score += 1
       }
     }

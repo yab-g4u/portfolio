@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Instrument_Serif, Inter, Archivo_Black, JetBrains_Mono } from "next/font/google"
 import "./globals.css"
 import { ResumeProvider } from "@/lib/resume-context"
+import { ThemeProvider } from "@/components/theme-provider"
 
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
@@ -76,10 +77,18 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark scroll-smooth ${instrumentSerif.variable} ${inter.variable} ${archivoBlack.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+      className={`${instrumentSerif.variable} ${inter.variable} ${archivoBlack.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="font-sans antialiased bg-[#0a0a0a] text-white selection:bg-[#d60407]/40 selection:text-white">
-        <ResumeProvider>{children}</ResumeProvider>
+      <body className="font-sans antialiased bg-background text-foreground selection:bg-[#d60407]/30 selection:text-foreground">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          storageKey="yeabsera-theme"
+        >
+          <ResumeProvider>{children}</ResumeProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

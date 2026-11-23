@@ -200,7 +200,7 @@ export function Contact({ isStandalone = false }: ContactProps) {
         <div>
           {status === "success" ? (
             <div className="py-10 text-center space-y-5">
-              <div className="w-12 h-12 rounded-full bg-white/15 border border-white/30 text-white flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-full bg-secondary border border-border text-foreground flex items-center justify-center mx-auto">
                 <Check className="w-6 h-6" />
               </div>
               <div className="space-y-2 max-w-sm mx-auto">
@@ -231,7 +231,7 @@ export function Contact({ isStandalone = false }: ContactProps) {
               <label htmlFor="contact-name">
                 Name{" "}
                 {touched.name && !formState.name.trim() && (
-                  <span className="text-[#ffd0d0] font-mono text-[11px] ml-2">Required</span>
+                  <span className="text-accent dark:text-[#ffd0d0] font-mono text-[11px] ml-2">Required</span>
                 )}
               </label>
               <input
@@ -249,7 +249,7 @@ export function Contact({ isStandalone = false }: ContactProps) {
                 Email{" "}
                 {touched.email &&
                   (!formState.email.trim() || !validateEmail(formState.email)) && (
-                    <span className="text-[#ffd0d0] font-mono text-[11px] ml-2">
+                    <span className="text-accent dark:text-[#ffd0d0] font-mono text-[11px] ml-2">
                       Valid email required
                     </span>
                   )}
@@ -268,7 +268,7 @@ export function Contact({ isStandalone = false }: ContactProps) {
               <label htmlFor="contact-subject">
                 Subject{" "}
                 {touched.subject && !formState.subject.trim() && (
-                  <span className="text-[#ffd0d0] font-mono text-[11px] ml-2">Required</span>
+                  <span className="text-accent dark:text-[#ffd0d0] font-mono text-[11px] ml-2">Required</span>
                 )}
               </label>
               <input
@@ -285,7 +285,7 @@ export function Contact({ isStandalone = false }: ContactProps) {
               <label htmlFor="contact-message">
                 Message{" "}
                 {touched.message && !formState.message.trim() && (
-                  <span className="text-[#ffd0d0] font-mono text-[11px] ml-2">Required</span>
+                  <span className="text-accent dark:text-[#ffd0d0] font-mono text-[11px] ml-2">Required</span>
                 )}
               </label>
               <textarea
@@ -300,13 +300,13 @@ export function Contact({ isStandalone = false }: ContactProps) {
               />
 
               {status === "error" && (
-                <div className="mt-4 p-3 rounded-2xl bg-black/50 border border-white/25 text-xs text-white flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#ffb3b3]" />
+                <div className="mt-4 p-3 rounded-2xl bg-secondary/90 dark:bg-black/50 border border-[#ff2b2b]/40 text-xs text-foreground flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-accent dark:text-[#ffb3b3]" />
                   <div>
                     <div className="font-semibold">Message could not be delivered</div>
-                    <p className="text-white/80 mt-0.5">
+                    <p className="text-muted-foreground mt-0.5">
                       {errorMessage}{" "}
-                      <a href={`mailto:${emailAddress}`} className="underline font-semibold">
+                      <a href={`mailto:${emailAddress}`} className="underline font-semibold text-foreground">
                         {emailAddress}
                       </a>
                     </p>

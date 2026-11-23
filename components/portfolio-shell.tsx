@@ -6,17 +6,14 @@ export function PortfolioShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
-    // Ensure body gets ready state if preloader was skipped or unmounted
     const readyFallback = window.setTimeout(() => {
       document.body.classList.add("ready")
     }, 100)
 
-    // Hero staggered reveal delays
     document.querySelectorAll<HTMLElement>(".hin .rv").forEach((el, i) => {
-      el.style.transitionDelay = `${i * 0.14}s`
+      el.style.transitionDelay = `${i * 0.1}s`
     })
 
-    // Scroll reveal IntersectionObserver
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -26,7 +23,7 @@ export function PortfolioShell({ children }: { children: React.ReactNode }) {
           }
         })
       },
-      { threshold: 0.08, rootMargin: "0px 0px -4% 0px" }
+      { threshold: 0.06, rootMargin: "0px 0px -3% 0px" }
     )
 
     const observeReveals = () => {
@@ -37,8 +34,14 @@ export function PortfolioShell({ children }: { children: React.ReactNode }) {
 
     observeReveals()
 
-    const mo = new MutationObserver(() => {
-      observeReveals()
+    let moTimer = 0
+    const mo = new MutationObserver((mutations) => {
+      const relevant = mutations.some(
+        (m) => !(m.target instanceof Element && m.target.closest("#selected-work"))
+      )
+      if (!relevant) return
+      window.clearTimeout(moTimer)
+      moTimer = window.setTimeout(observeReveals, 80)
     })
     mo.observe(document.body, { childList: true, subtree: true })
 
@@ -59,38 +62,57 @@ export function PortfolioShell({ children }: { children: React.ReactNode }) {
               ho?.unobserve(entry.target)
               const t = window.setTimeout(() => {
                 entry.target.classList.remove("sk")
-              }, 320 + Math.random() * 420)
+              }, 260 + Math.random() * 240)
               cardTimers.push(t)
             }
           })
         },
-        { threshold: 0.08 }
+        { threshold: 0.06 }
       )
       cards.forEach((c) => ho?.observe(c))
     }
 
-    // Parallax loop for .ghost watermarks
-    let rafId = 0
-    const parallax = () => {
-      rafId = window.requestAnimationFrame(parallax)
+    // Scroll-coalesced parallax for .ghost watermarks (no continuous 60fps reflow loop)
+    let ghosts = Array.from(document.querySelectorAll<HTMLElement>(".ghost"))
+    let parallaxPending = false
+    let parallaxRaf = 0
+
+    const updateParallax = () => {
+      parallaxPending = false
       if (rm) return
-      const ghosts = document.querySelectorAll<HTMLElement>(".ghost")
+      if (ghosts.length === 0) {
+        ghosts = Array.from(document.querySelectorAll<HTMLElement>(".ghost"))
+      }
       const vh = window.innerHeight
-      ghosts.forEach((g) => {
+      for (let i = 0; i < ghosts.length; i++) {
+        const g = ghosts[i]
         const b = g.getBoundingClientRect()
-        if (b.bottom < -200 || b.top > vh + 200) return
-        g.style.transform = `translateY(${(b.top - vh / 2) * -0.05}px)`
-      })
+        if (b.bottom < -200 || b.top > vh + 200) continue
+        const offset = (b.top - vh * 0.5) * -0.045
+        g.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`
+      }
     }
-    rafId = window.requestAnimationFrame(parallax)
+
+    const onScroll = () => {
+      if (rm || parallaxPending) return
+      parallaxPending = true
+      parallaxRaf = window.requestAnimationFrame(updateParallax)
+    }
+
+    if (!rm) {
+      updateParallax()
+      window.addEventListener("scroll", onScroll, { passive: true })
+    }
 
     return () => {
       window.clearTimeout(readyFallback)
+      window.clearTimeout(moTimer)
       cardTimers.forEach((t) => window.clearTimeout(t))
       io.disconnect()
       mo.disconnect()
       ho?.disconnect()
-      window.cancelAnimationFrame(rafId)
+      window.removeEventListener("scroll", onScroll)
+      window.cancelAnimationFrame(parallaxRaf)
     }
   }, [])
 

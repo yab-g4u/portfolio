@@ -19,19 +19,8 @@ export function IdaOverlay({
   beatIndex: number
   reducedMotion: boolean
 }) {
-  const [skReady, setSkReady] = useState(reducedMotion)
   const [typedLen, setTypedLen] = useState(reducedMotion ? SEARCH_WORD.length : 0)
   const [langIndex, setLangIndex] = useState(0)
-
-  useEffect(() => {
-    if (reducedMotion) {
-      setSkReady(true)
-      return
-    }
-    setSkReady(false)
-    const id = window.setTimeout(() => setSkReady(true), 360)
-    return () => window.clearTimeout(id)
-  }, [beatIndex, reducedMotion])
 
   // Typing loop for Amoxicillin search beat
   useEffect(() => {
@@ -62,7 +51,7 @@ export function IdaOverlay({
   const beatClass = (idx: number, extra = "") =>
     `sw-beat ${extra} ${reducedMotion || beatIndex === idx ? "is-active" : ""}`
 
-  const cardClass = `sw-card sw-rv sw-interactive ${skReady ? "" : "sw-sk"}`
+  const cardClass = "sw-card sw-rv sw-interactive"
 
   return (
     <>
@@ -89,7 +78,7 @@ export function IdaOverlay({
           </p>
           <div className={cardClass}>
             <div className="sw-srch">
-              <Search className="w-4 h-4 text-[#ff6a6a] shrink-0" />
+              <Search className="w-4 h-4 text-[#d60407] dark:text-[#ff6a6a] shrink-0" />
               <span>{SEARCH_WORD.slice(0, typedLen)}</span>
               <span className="sw-cursor" aria-hidden="true" />
             </div>

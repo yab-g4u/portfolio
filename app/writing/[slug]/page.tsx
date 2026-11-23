@@ -22,8 +22,9 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params
-  const post = getPostBySlug(slug)
+  const resolved = await params
+  const slug = resolved?.slug
+  const post = slug ? getPostBySlug(slug) : null
 
   if (!post) {
     return {
@@ -58,8 +59,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function WritingDetailPage({ params }: PageProps) {
-  const { slug } = await params
-  const post = getPostBySlug(slug)
+  const resolved = await params
+  const slug = resolved?.slug
+  const post = slug ? getPostBySlug(slug) : null
 
   if (!post) {
     notFound()
@@ -89,7 +91,7 @@ export default async function WritingDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-[#d60407]/40 selection:text-white font-sans">
+    <div className="min-h-screen bg-background text-foreground selection:bg-[#d60407]/30 selection:text-foreground font-sans">
       {/* Top Navigation */}
       <Navigation />
 
@@ -99,12 +101,12 @@ export default async function WritingDetailPage({ params }: PageProps) {
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <Link
             href="/writing"
-            className="inline-flex items-center gap-1.5 hover:text-white transition-colors group"
+            className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors group"
           >
             <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
             <span>Back to Writing</span>
           </Link>
-          <span className="font-mono text-[11px] uppercase tracking-wider text-[#ffb0b0]">
+          <span className="font-mono text-[11px] uppercase tracking-wider text-accent dark:text-[#ffb0b0]">
             {post.category}
           </span>
         </div>
@@ -112,7 +114,7 @@ export default async function WritingDetailPage({ params }: PageProps) {
         {/* Article Header */}
         <header className="space-y-4 pt-2 border-b border-border pb-6">
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-mono font-medium px-2.5 py-0.5 rounded-full bg-[#d60407]/20 text-[#ffb0b0] border border-[#ff2b2b]/30">
+            <span className="font-mono font-medium px-2.5 py-0.5 rounded-full bg-[#d60407]/12 dark:bg-[#d60407]/20 text-accent dark:text-[#ffb0b0] border border-[#ff2b2b]/30">
               {post.category}
             </span>
             <span className="text-muted-foreground">•</span>
@@ -131,7 +133,7 @@ export default async function WritingDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-white leading-[1.08]">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-foreground leading-[1.08]">
             {post.title}
           </h1>
 

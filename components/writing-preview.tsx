@@ -52,7 +52,7 @@ export function WritingPreview({ posts }: WritingPreviewProps) {
               <small>
                 {post.category} · {formatDate(post.date)} · {post.readingTime}
               </small>
-              <h5 className="group-hover:text-[#ffd0d0] transition-colors">
+              <h5 className="group-hover:text-accent dark:group-hover:text-[#ffd0d0] transition-colors">
                 {post.title}
               </h5>
               {post.project && <div className="au">Related system: {post.project}</div>}
@@ -65,7 +65,7 @@ export function WritingPreview({ posts }: WritingPreviewProps) {
                   #{tag}
                 </span>
               ))}
-              <span className="ml-auto inline-flex items-center gap-1 text-[12px] text-[#ffb3b3] group-hover:text-white transition-colors">
+              <span className="ml-auto inline-flex items-center gap-1 text-[12px] text-accent dark:text-[#ffb3b3] group-hover:text-foreground transition-colors">
                 <span>Read</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </span>

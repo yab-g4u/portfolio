@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import * as THREE from "three"
+import { useTheme } from "next-themes"
 
 const VERTEX_SHADER = `
 varying vec2 v;
@@ -15,6 +16,7 @@ const FRAGMENT_SHADER = `
 precision highp float;
 varying vec2 v;
 uniform float t;
+uniform float uLight;
 uniform vec2 r, m;
 
 float h(vec2 p) {
@@ -61,19 +63,34 @@ void main() {
   );
   float f = fbm(p + 3.0 * w);
 
+  // Dark Crimson-Noir Palette
   vec3 red = vec3(0.9, 0.0, 0.0);
   vec3 rosso = vec3(0.84, 0.016, 0.03);
   vec3 blk = vec3(0.07, 0.07, 0.07);
   vec3 tl = vec3(0.01, 0.05, 0.05);
 
-  vec3 c = mix(blk, rosso, smoothstep(0.25, 0.75, f));
-  c = mix(c, red, smoothstep(0.45, 0.9, q.x) * 0.7);
-  c = mix(c, tl, smoothstep(0.5, 1.0, (1.0 - v.y) * 0.6 + (1.0 - v.x) * 0.5 + q.y * 0.3) * 0.6);
+  vec3 darkCol = mix(blk, rosso, smoothstep(0.25, 0.75, f));
+  darkCol = mix(darkCol, red, smoothstep(0.45, 0.9, q.x) * 0.7);
+  darkCol = mix(darkCol, tl, smoothstep(0.5, 1.0, (1.0 - v.y) * 0.6 + (1.0 - v.x) * 0.5 + q.y * 0.3) * 0.6);
+  darkCol *= 0.75 + 0.4 * smoothstep(0.0, 1.0, 1.0 - length(v - vec2(0.5, 0.2)));
+  darkCol = pow(darkCol, vec3(0.95));
 
-  c *= 0.75 + 0.4 * smoothstep(0.0, 1.0, 1.0 - length(v - vec2(0.5, 0.2)));
-  c = pow(c, vec3(0.95));
+  // Light Alabaster & Crimson Silk Palette (high text contrast center)
+  vec3 ivory = vec3(0.985, 0.982, 0.985);
+  vec3 blush = vec3(0.96, 0.87, 0.875);
+  vec3 coral = vec3(0.88, 0.24, 0.25);
+  vec3 coolMist = vec3(0.92, 0.93, 0.94);
 
-  float L = 7.0;
+  vec3 lightCol = mix(ivory, blush, smoothstep(0.28, 0.78, f));
+  lightCol = mix(lightCol, coral, smoothstep(0.52, 0.94, q.x) * 0.32);
+  lightCol = mix(lightCol, coolMist, smoothstep(0.5, 1.0, (1.0 - v.y) * 0.6 + q.y * 0.3) * 0.35);
+  // Brighten center halo so dark editorial display typography remains razor-sharp
+  float centerMask = smoothstep(0.85, 0.05, length((v - vec2(0.5, 0.48)) * vec2(1.0, 1.25)));
+  lightCol = mix(lightCol, ivory, centerMask * 0.68);
+
+  vec3 c = mix(darkCol, lightCol, uLight);
+
+  float L = mix(7.0, 14.0, uLight);
   c = floor(c * L + b4(floor(gl_FragCoord.xy / 3.0))) / L;
   gl_FragColor = vec4(c, 1.0);
 }
@@ -81,6 +98,12 @@ void main() {
 
 export function HeroShader() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const targetLightRef = useRef<number>(0)
+  const { resolvedTheme } = useTheme()
+
+  useEffect(() => {
+    targetLightRef.current = resolvedTheme === "light" ? 1 : 0
+  }, [resolvedTheme])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -102,6 +125,7 @@ export function HeroShader() {
 
     const uniforms = {
       t: { value: 0 },
+      uLight: { value: targetLightRef.current },
       r: { value: new THREE.Vector2(1, 1) },
       m: { value: new THREE.Vector2(0.5, 0.5) },
     }
@@ -148,7 +172,8 @@ export function HeroShader() {
       rafId = window.requestAnimationFrame(renderLoop)
       if (!isVisible) return
       uniforms.t.value = reducedMotion ? 1.5 : ts / 1000
-      uniforms.m.value.lerp(targetMouse, 0.04)
+      uniforms.uLight.value += (targetLightRef.current - uniforms.uLight.value) * 0.1
+      uniforms.m.value.lerp(targetMouse, 0.06)
       renderer.render(scene, camera)
     }
     rafId = window.requestAnimationFrame(renderLoop)
