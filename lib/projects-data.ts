@@ -447,9 +447,56 @@ export const projects: Project[] = [
     ],
     isFeatured: false,
   },
+  {
+    id: "suno",
+    number: "10",
+    tag: "VISION & ASSISTIVE SPEECH",
+    name: "Suno",
+    subtitle: "Computer vision and kinematic gesture tracking for speech development.",
+    description:
+      "Computer vision & gesture tracking helping children establish speech through interactive play and real-time articulatory kinematics.",
+    problem:
+      "Early childhood speech therapy tools are either acoustic-only visualizers or expensive proprietary medical hardware out of reach for most families.",
+    whatWasBuilt:
+      "Built a client-side computer vision engine that processes video frames within a 33ms budget to track articulatory jaw and lip kinematics with interactive physics feedback.",
+    highlights: [
+      "Real-Time Landmark Kinematics",
+      "Sub-33ms Client Inference",
+      "Inter-Ocular Normalization",
+      "Interactive Speech Games",
+    ],
+    tech: ["Computer Vision", "Pose Estimation", "React", "TypeScript", "WebGL"],
+    category: "featured",
+    github: "",
+    demo: "https://sunoos.vercel.app/",
+    metrics: {
+      latency: "< 33ms",
+      efficiency: "30 FPS Real-time",
+    },
+    features: [
+      "Real-time articulatory kinematic estimation",
+      "Browser-native execution without external cloud streaming",
+      "Low-pass exponential filtering for sensor noise suppression",
+      "Adaptive frame-rate throttling",
+    ],
+    isFeatured: false,
+  },
 ]
 
 export const getFeaturedProjects = () => projects.filter((p) => p.isFeatured)
 export const getAllProjects = () => projects
 export const getProjectById = (id: string | number) =>
   projects.find((p) => String(p.id).toLowerCase() === String(id).toLowerCase())
+
+export const getProjectByNameOrId = (query: string) => {
+  if (!query) return null
+  const clean = query.trim().toLowerCase()
+  return (
+    projects.find(
+      (p) =>
+        String(p.id).toLowerCase() === clean ||
+        p.name.toLowerCase() === clean ||
+        p.name.toLowerCase().includes(clean)
+    ) || null
+  )
+}

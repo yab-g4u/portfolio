@@ -1,24 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowUpRight, Github, Sparkles, Terminal, ShieldCheck, Search, Activity, Cpu, Eye } from "lucide-react"
-import { ProjectVisual } from "@/components/project-visual"
-import {
-  PythonIcon,
-  FastApiIcon,
-  TypeScriptIcon,
-  NextjsIcon,
-  SqliteIcon,
-  GitHubBrandIcon,
-} from "@/components/tech-icons"
+import Link from "next/link"
+import { ArrowUpRight, BookOpen, Github } from "lucide-react"
 
-interface FavoriteProject {
+interface SpotlightProject {
   id: string
   number: string
   name: string
   badge: string
-  category: string
-  icon: React.ComponentType<{ className?: string }>
   tagline: string
   description: string
   pipeline: {
@@ -27,19 +17,18 @@ interface FavoriteProject {
     detail: string
   }[]
   metrics: { label: string; value: string }[]
-  tech: { name: string; icon?: React.ComponentType<{ className?: string }> }[]
+  tech: string[]
   github?: string | null
   demo?: string | null
+  journalHref?: string
 }
 
-const FAVORITES: FavoriteProject[] = [
+const FAVORITES: SpotlightProject[] = [
   {
     id: "atlas",
     number: "01",
     name: "ATLAS",
     badge: "AI Developer Infrastructure",
-    category: "Code Intelligence & Portfolio Compiler",
-    icon: Sparkles,
     tagline: "Turns GitHub repositories and career data into production-ready portfolios.",
     description:
       "ATLAS eliminates manual portfolio crafting by executing deep semantic code analysis across your GitHub repositories and ingested resumes. It reconstructs architectural competence, generates bespoke React components, and provisions instant deployments.",
@@ -70,14 +59,7 @@ const FAVORITES: FavoriteProject[] = [
       { label: "Analysis Mode", value: "Full AST & Commit History" },
       { label: "Output", value: "Next.js + Tailwind App" },
     ],
-    tech: [
-      { name: "TypeScript", icon: TypeScriptIcon },
-      { name: "Next.js", icon: NextjsIcon },
-      { name: "GitHub API", icon: GitHubBrandIcon },
-      { name: "OpenAI" },
-      { name: "Tailwind CSS" },
-      { name: "Vercel SDK" },
-    ],
+    tech: ["TypeScript", "Next.js", "GitHub API", "OpenAI", "Tailwind CSS", "Vercel SDK"],
     github: "https://github.com/yab-g4u/attlas",
     demo: "https://attlas-nu.vercel.app/",
   },
@@ -86,8 +68,6 @@ const FAVORITES: FavoriteProject[] = [
     number: "02",
     name: "ShieldGuard",
     badge: "Telecom AI & Security",
-    category: "Network-Level Fraud Mitigation",
-    icon: ShieldCheck,
     tagline: "Telecom trust orchestration using GSMA CAMARA APIs for African fintech.",
     description:
       "Built for the realities of Sub-Saharan Africa's digital economy. ShieldGuard queries carrier-grade Open Gateway signals (SIM Swap timestamps, cell-site geolocations, and KYC status) to stop SIM-swap fraud and account takeovers before mobile money leaves the account.",
@@ -118,14 +98,7 @@ const FAVORITES: FavoriteProject[] = [
       { label: "Mitigation Latency", value: "< 80ms Carrier Hook" },
       { label: "Target Sector", value: "Mobile Money & African Fintech" },
     ],
-    tech: [
-      { name: "CAMARA APIs" },
-      { name: "FastAPI", icon: FastApiIcon },
-      { name: "Python", icon: PythonIcon },
-      { name: "Telecom AI" },
-      { name: "Fintech Security" },
-      { name: "TypeScript", icon: TypeScriptIcon },
-    ],
+    tech: ["CAMARA APIs", "FastAPI", "Python", "Telecom AI", "Fintech Security", "TypeScript"],
     github: "https://github.com/yab-g4u/shield-guard.git",
     demo: "https://shieldguard.vercel.app/",
   },
@@ -134,8 +107,6 @@ const FAVORITES: FavoriteProject[] = [
     number: "03",
     name: "Surf",
     badge: "Local-First / Information Retrieval",
-    category: "Zero-Cloud Developer Search Engine",
-    icon: Search,
     tagline: "Local-first hybrid search engine for developer data with zero hosted LLMs.",
     description:
       "A privacy-first personal search engine across Reddit, Telegram, Devpost, X, and LinkedIn data dumps. Uses SQLite FTS5 BM25 lexical ranking coupled with local sentence-transformer vector embeddings, merged via Reciprocal Rank Fusion (RRF) on your local CPU.",
@@ -166,14 +137,7 @@ const FAVORITES: FavoriteProject[] = [
       { label: "Index Engine", value: "SQLite FTS5 + MiniLM Vectors" },
       { label: "Fusion Algorithm", value: "Reciprocal Rank Fusion (RRF)" },
     ],
-    tech: [
-      { name: "Python", icon: PythonIcon },
-      { name: "SQLite FTS5", icon: SqliteIcon },
-      { name: "Sentence-Transformers" },
-      { name: "BM25 Lexical" },
-      { name: "Vector RRF" },
-      { name: "FastAPI", icon: FastApiIcon },
-    ],
+    tech: ["Python", "SQLite FTS5", "Sentence-Transformers", "BM25 Lexical", "Vector RRF", "FastAPI"],
     github: "https://github.com/yab-g4u/surf.git",
     demo: null,
   },
@@ -182,8 +146,6 @@ const FAVORITES: FavoriteProject[] = [
     number: "04",
     name: "Medscope",
     badge: "Multi-Agent Systems & Health AI",
-    category: "Epidemic Coordination & Simulation",
-    icon: Activity,
     tagline: "Multi-agent epidemic coordination system with verifiable policy execution.",
     description:
       "Combines mathematical SEIR disease outbreak modeling with a swarm of specialized AI agents (Policy, Medical Logistics, and Public Sentiment). Awarded 2nd Place in the African Blockchain Championship for immutable public health coordination.",
@@ -214,24 +176,16 @@ const FAVORITES: FavoriteProject[] = [
       { label: "Core Model", value: "SEIR Stochastic Outbreak Math" },
       { label: "Coordination", value: "Autonomous Multi-Agent Swarm" },
     ],
-    tech: [
-      { name: "CrewAI" },
-      { name: "Multi-Agent Systems" },
-      { name: "Python", icon: PythonIcon },
-      { name: "SEIR Modeling" },
-      { name: "Blockchain" },
-      { name: "FastAPI", icon: FastApiIcon },
-    ],
+    tech: ["CrewAI", "Multi-Agent Systems", "Python", "SEIR Modeling", "Blockchain", "FastAPI"],
     github: "https://github.com/yab-g4u/medscop.git",
     demo: "https://medscop.vercel.app/",
+    journalHref: "/writing/from-hackathon-prototype-to-real-ai-system",
   },
   {
     id: "suno",
     number: "05",
     name: "Suno",
     badge: "Computer Vision & Assistive AI",
-    category: "Vision-Guided Assistive Interaction",
-    icon: Eye,
     tagline: "Computer vision & gesture tracking helping children establish speech through interactive play.",
     description:
       "An assistive AI interface employing client-side computer vision, real-time facial landmark tracking, and motion kinematics to help children with speech challenges engage in gamified articulation and visual auditory feedback loops.",
@@ -239,7 +193,7 @@ const FAVORITES: FavoriteProject[] = [
       {
         step: "01",
         title: "Low-Latency Video Ingest",
-        detail: "Captures camera frames locally with WebGL/WASM acceleration at 60 FPS directly on the client device.",
+        detail: "Captures camera frames locally with WebGL/WASM acceleration directly on the client device.",
       },
       {
         step: "02",
@@ -249,7 +203,7 @@ const FAVORITES: FavoriteProject[] = [
       {
         step: "03",
         title: "Interactive State Machine",
-        detail: "Maps gestural kinematics into interactive target thresholds in responsive sub-30ms execution loops.",
+        detail: "Maps gestural kinematics into interactive target thresholds in responsive real-time loops.",
       },
       {
         step: "04",
@@ -258,225 +212,141 @@ const FAVORITES: FavoriteProject[] = [
       },
     ],
     metrics: [
-      { label: "Inference Latency", value: "< 25ms Real-time" },
-      { label: "Privacy / Architecture", value: "100% Client-Side Vision" },
+      { label: "Execution Budget", value: "33ms Frame Loop" },
+      { label: "Architecture", value: "100% Client-Side Vision" },
       { label: "Core Impact", value: "Assistive Speech & Play" },
     ],
-    tech: [
-      { name: "Computer Vision" },
-      { name: "Pose Estimation" },
-      { name: "WebAudio" },
-      { name: "Interactive AI" },
-      { name: "TypeScript", icon: TypeScriptIcon },
-      { name: "React" },
-    ],
+    tech: ["Computer Vision", "Pose Estimation", "WebAudio", "Interactive AI", "TypeScript", "React"],
     github: null,
     demo: "https://sunoos.vercel.app/",
+    journalHref: "/writing/building-suno-teaching-a-computer-to-understand-human-movement",
   },
 ]
 
 export function FavoriteSpotlight() {
-  const [activeTab, setActiveTab] = useState<string>("atlas")
-  const [activeStep, setActiveStep] = useState<number>(0)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [activeStep, setActiveStep] = useState(0)
 
-  const currentProject = FAVORITES.find((p) => p.id === activeTab) || FAVORITES[0]
-  const IconComponent = currentProject.icon
+  const currentProject = FAVORITES[activeIndex] || FAVORITES[0]
+  const currentPipelineStep = currentProject.pipeline[activeStep] || currentProject.pipeline[0]
 
   return (
-    <section id="spotlight" className="py-12 border-t border-border">
-      <div className="space-y-6">
-        {/* Section Header */}
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                Featured systems
-              </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-secondary text-foreground font-semibold">
-                Spotlight
-              </span>
-            </div>
-            <span className="text-xs font-mono text-muted-foreground">01 — 05</span>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            A deeper look at flagship systems spanning developer tools, telecom trust, local IR, multi-agent coordination, and assistive computer vision.
-          </p>
+    <section id="spotlight">
+      <div className="head">
+        <div className="ghost" aria-hidden="true">
+          SPOTLIGHT
         </div>
+        <small className="rv">Featured systems · 01 — 05</small>
+        <h2 className="glow rv">Spotlight</h2>
+        <div className="bar" />
+        <p className="rv">
+          A deeper look at flagship systems spanning developer tools, telecom trust, local IR,
+          multi-agent coordination, and assistive computer vision.
+        </p>
+      </div>
 
-        {/* Tab Navigation Selector - Responsive Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-          {FAVORITES.map((fav) => {
-            const isSelected = fav.id === activeTab
-            return (
-              <button
-                key={fav.id}
-                onClick={() => {
-                  setActiveTab(fav.id)
-                  setActiveStep(0)
-                }}
-                className={`p-2.5 sm:p-3 text-left rounded-md border transition-all ${
-                  isSelected
-                    ? "bg-secondary border-foreground/30 shadow-xs"
-                    : "bg-secondary/30 border-border hover:bg-secondary/60 text-muted-foreground"
-                }`}
+      <div className="tabs" role="tablist" aria-label="Featured Systems">
+        {FAVORITES.map((fav, idx) => (
+          <button
+            key={fav.id}
+            type="button"
+            role="tab"
+            aria-selected={idx === activeIndex}
+            onClick={() => {
+              setActiveIndex(idx)
+              setActiveStep(0)
+            }}
+            className={`pill ${idx === activeIndex ? "on" : ""}`}
+          >
+            {fav.number} {fav.name}
+          </button>
+        ))}
+      </div>
+
+      <div className="spot card g2 rv">
+        <div className="flex flex-col justify-between gap-6">
+          <div>
+            <h3>{currentProject.name}</h3>
+            <div className="k">{currentProject.badge}</div>
+            <p>
+              <b>{currentProject.tagline}</b>
+            </p>
+            <p style={{ marginTop: "12px" }}>{currentProject.description}</p>
+
+            <div className="tgs">
+              {currentProject.tech.map((t) => (
+                <span key={t} className="tg">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="btns" style={{ justifyContent: "flex-start" }}>
+            {currentProject.demo && (
+              <a
+                className="pill solid"
+                href={currentProject.demo}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="text-[10px] font-mono text-muted-foreground">
-                    {fav.number}
-                  </span>
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      isSelected ? "bg-accent" : "bg-muted-foreground/30"
-                    }`}
-                  />
-                </div>
-                <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
-                  {fav.name}
-                </div>
-                <div className="text-[10px] font-mono text-muted-foreground truncate pt-0.5">
-                  {fav.badge.split(" / ")[0]}
-                </div>
-              </button>
-            )
-          })}
+                <span>Live App</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </a>
+            )}
+            {currentProject.github && (
+              <a
+                className="pill"
+                href={currentProject.github}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Github className="w-4 h-4" />
+                <span>Source</span>
+              </a>
+            )}
+            {currentProject.journalHref && (
+              <Link className="pill" href={currentProject.journalHref}>
+                <BookOpen className="w-4 h-4 text-[#ffb3b3]" />
+                <span>Journal Note</span>
+              </Link>
+            )}
+          </div>
         </div>
 
-        {/* Selected Project Console Box */}
-        <div className="rounded-lg border border-border bg-card p-4 sm:p-6 space-y-5 sm:space-y-6 shadow-xs">
-          {/* Visual Architecture Representation */}
-          <ProjectVisual id={currentProject.id} name={currentProject.name} />
-
-          {/* Header Row */}
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-border pb-4">
-            <div className="space-y-1.5 min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="p-1.5 rounded bg-secondary border border-border text-foreground shrink-0">
-                  <IconComponent className="w-4 h-4 text-accent" />
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
-                  {currentProject.name}
-                </h3>
-                <span className="text-[10px] sm:text-[11px] font-mono px-2 py-0.5 rounded bg-secondary/80 border border-border text-muted-foreground truncate max-w-full">
-                  {currentProject.badge}
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm font-medium text-foreground">
-                {currentProject.tagline}
-              </p>
-            </div>
-
-            {/* Direct Action Links */}
-            <div className="flex items-center gap-2 shrink-0 flex-wrap">
-              {currentProject.demo && (
-                <a
-                  href={currentProject.demo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-foreground text-background text-xs font-medium hover:opacity-90 transition-opacity shadow-xs"
-                >
-                  <span>Live App</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
-              )}
-              {currentProject.github && (
-                <a
-                  href={currentProject.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary border border-border text-foreground text-xs font-medium hover:bg-secondary/80 transition-colors"
-                >
-                  <Github className="w-3.5 h-3.5" />
-                  <span>Source</span>
-                  <ArrowUpRight className="w-3 h-3 opacity-60" />
-                </a>
-              )}
-            </div>
-          </div>
-
-          {/* Description */}
-          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            {currentProject.description}
+        <div>
+          <p style={{ marginBottom: "12px", color: "#ffd0d0" }}>
+            Architecture flow &amp; pipeline · click step to inspect
           </p>
 
-          {/* Interactive Pipeline Architecture Diagram */}
-          <div className="space-y-2 pt-1">
-            <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <Terminal className="w-3 h-3 text-accent" />
-                <span>Architecture flow & pipeline</span>
-              </span>
-              <span className="text-[10px] text-muted-foreground/80">Click step to inspect</span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {currentProject.pipeline.map((p, idx) => {
-                const isActive = activeStep === idx
-                return (
-                  <button
-                    key={p.step}
-                    onClick={() => setActiveStep(idx)}
-                    className={`p-2 sm:p-2.5 rounded-md text-left border transition-all ${
-                      isActive
-                        ? "bg-secondary border-accent/60 shadow-xs"
-                        : "bg-secondary/20 border-border/70 hover:bg-secondary/40 text-muted-foreground"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-[10px] font-mono mb-1">
-                      <span className={isActive ? "text-accent font-semibold" : "text-muted-foreground"}>
-                        STEP {p.step}
-                      </span>
-                      {isActive && <Cpu className="w-3 h-3 text-accent" />}
-                    </div>
-                    <div className="text-xs font-semibold text-foreground truncate">
-                      {p.title}
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-
-            {/* Active Step Details Panel */}
-            <div className="p-3 rounded-md bg-secondary/40 border border-border/80 text-xs space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-accent text-[11px] font-semibold">
-                  [{currentProject.pipeline[activeStep]?.step}] {currentProject.pipeline[activeStep]?.title}
-                </span>
-              </div>
-              <p className="text-muted-foreground text-xs leading-relaxed">
-                {currentProject.pipeline[activeStep]?.detail}
-              </p>
-            </div>
-          </div>
-
-          {/* Metrics & Technical Stack */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-2 border-t border-border">
-            {currentProject.metrics.map((m) => (
-              <div key={m.label} className="p-2.5 rounded bg-secondary/20 border border-border/60 space-y-0.5">
-                <div className="text-[10px] font-mono uppercase text-muted-foreground">
-                  {m.label}
-                </div>
-                <div className="text-xs font-semibold text-foreground">
-                  {m.value}
-                </div>
-              </div>
+          <div className="steps">
+            {currentProject.pipeline.map((p, idx) => (
+              <button
+                key={p.step}
+                type="button"
+                onClick={() => setActiveStep(idx)}
+                className={`step ${idx === activeStep ? "on" : ""}`}
+              >
+                <small>STEP {p.step}</small>
+                {p.title}
+              </button>
             ))}
           </div>
 
-          {/* Tech tags with real icons */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            <span className="text-[11px] font-mono text-muted-foreground mr-1">Stack:</span>
-            {currentProject.tech.map((t) => {
-              const IconComp = t.icon
-              return (
-                <span
-                  key={t.name}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-secondary text-[11px] font-mono text-foreground border border-border/60"
-                >
-                  {IconComp && <IconComp className="w-3 h-3 text-accent" />}
-                  <span>{t.name}</span>
-                </span>
-              )
-            })}
+          <div className="sdesc">
+            <b>
+              [{currentPipelineStep.step}] {currentPipelineStep.title}
+            </b>
+            <br />
+            {currentPipelineStep.detail}
+            <br />
+            <br />
+            {currentProject.metrics.map((m, idx) => (
+              <span key={m.label}>
+                {m.label}: <b>{m.value}</b>
+                {idx < currentProject.metrics.length - 1 ? " · " : ""}
+              </span>
+            ))}
           </div>
         </div>
       </div>

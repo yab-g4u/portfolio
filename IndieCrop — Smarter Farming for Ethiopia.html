@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>IndieCrop — Smarter Farming for Ethiopia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--red:#d60407;--hot:#ff2b2b;--grn:#4ade80;--blk:#0a0a0a;--r2:clamp(30px,3.4vw,56px);--mono:'JetBrains Mono',ui-monospace,monospace;--disp:'Archivo Black','Inter',sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--blk);color:#fff;font:400 17px/1.6 Inter,system-ui,sans-serif;overflow-x:hidden}
+#gl{position:fixed;inset:0;width:100%;height:100%;z-index:0;background:linear-gradient(#0a0a0a,#3a0406 70%,#7a0709)}
+.dz{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.5;mix-blend-mode:multiply;background:radial-gradient(circle,#000a .8px,transparent 1.2px) 0 0/3px 3px}
+main{position:relative;z-index:2}
+section{min-height:100svh;display:flex;align-items:center;padding:0 7%}section.r{justify-content:flex-end}section.c{justify-content:center;text-align:center;flex-direction:column}
+.col{max-width:540px;width:100%}
+.n{font:500 13px var(--mono);letter-spacing:.2em;color:var(--hot);text-transform:uppercase}
+h1{font:400 clamp(60px,13.5vw,220px)/.85 var(--disp);margin:14px 0 22px;letter-spacing:-.04em;text-shadow:0 0 80px #d6040788;text-transform:uppercase}
+h1 em{font:italic 400 .9em var(--disp);color:transparent;-webkit-text-stroke:2px #fff}
+h2{font:400 clamp(30px,4.6vw,68px)/1.02 var(--disp);text-transform:uppercase;letter-spacing:-.025em;margin:12px 0 16px}
+p{color:#ffe0d8;margin:0 0 22px;text-shadow:0 2px 20px #000}.lead{font-size:clamp(18px,1.8vw,26px);max-width:560px}
+.tag{display:inline-block;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:9px 16px;border:1px solid #ff2b2b66;border-radius:99px;background:#d604071f;backdrop-filter:blur(8px)}
+.card{position:relative;border-radius:var(--r2);padding:clamp(20px,2.4vw,34px);background:linear-gradient(160deg,#1a0305d9,#0a0a0ad9);backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px #ff2b2b33,0 0 90px #d6040733;overflow:hidden;text-align:left}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.chips span{font:500 12px var(--mono);letter-spacing:.06em;padding:8px 14px;border-radius:99px;background:#ffffff10;border:1px solid #ff2b2b44}.chips .g{border-color:#4ade8088;color:var(--grn)}
+.rk{display:grid;grid-template-columns:34px 1fr 90px;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #ffffff14}.rk:last-of-type{border:0}.rk i{font:400 22px var(--disp);color:var(--hot);font-style:normal}.rk b{font-weight:600}
+.bar{height:8px;border-radius:99px;background:#ffffff18;overflow:hidden}.bar:after{content:"";display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--red),#ff7a7a);transition:width 1.4s cubic-bezier(.2,.7,.2,1) .3s}.in .bar:after{width:var(--w)}.bar.g:after{background:linear-gradient(90deg,#1c9a4a,var(--grn))}
+.big{font:400 clamp(56px,7vw,96px)/1 var(--disp);letter-spacing:-.03em}.big small{font-size:.3em;color:#ffb3b3;margin-left:8px;letter-spacing:0}
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #ffffff14;font-size:15px}.row b{margin-left:auto;font:500 12px var(--mono);color:#ffb3b3}
+.ok{color:#04210f;background:var(--grn);border-radius:99px;font:500 11px var(--mono);padding:4px 10px;letter-spacing:.08em}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:min(1000px,100%);margin-top:30px}.mini .card h3{font:400 22px var(--disp);text-transform:uppercase;margin:0 0 8px}.mini .card p{margin:0;font-size:15px}
+.fn{font:400 11px var(--mono);color:#ffffff66;margin-top:12px}
+.btn{display:inline-block;padding:13px 24px;border-radius:99px;border:1px solid #ff6a6a;background:var(--red);color:#fff;font:600 14px Inter;margin-top:12px}
+.pill{display:inline-block;margin-top:8px;padding:16px 30px;border-radius:99px;background:linear-gradient(#ff4a4a,#d60407 55%,#7a0204);color:#fff;text-decoration:none;font-weight:600;box-shadow:0 10px 40px #d6040766,inset 0 1px #ffffff55;transition:transform .25s}.pill:hover{transform:translateY(-3px)}
+.hud{position:fixed;z-index:5;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 16px);display:flex;justify-content:space-between;align-items:center;padding:0 clamp(16px,3vw,40px);pointer-events:none;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#ffd9d9}
+.hud a{pointer-events:auto;color:#fff;text-decoration:none;padding:9px 16px;border-radius:99px;border:1px solid #ff2b2b66;background:#0a0a0a88;backdrop-filter:blur(10px)}
+.rv{opacity:0;transform:translateY(34px);filter:blur(8px);transition:opacity .9s,transform .9s cubic-bezier(.2,.7,.2,1),filter .9s}.rv.in{opacity:1;transform:none;filter:none}
+@keyframes sh{to{background-position:-200% 0}}
+.card.sk>*{opacity:0}.card>*{transition:opacity .7s}.card.sk:after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(105deg,#1a0305 35%,#ff2b2b3a 50%,#1a0305 65%) 100% 0/200% 100%;animation:sh 1.5s linear infinite}
+#ld{position:fixed;inset:0;z-index:100;pointer-events:none}.pn{position:absolute;inset:0;background:radial-gradient(70% 95% at 50% 105%,#e60000,#9a0606 45%,transparent 78%),#b00507;display:flex;align-items:flex-end;padding:0 3.5vw 2.2vw;transition:transform .9s cubic-bezier(.7,0,.2,1)}
+#ld.out .pn{transform:translateY(-100%)}.pn div{font:400 clamp(44px,11vw,200px)/.9 var(--disp);letter-spacing:-.04em;text-transform:uppercase;display:flex;overflow:hidden;padding-top:.1em}
+.pn span{display:block;transform-origin:50% 100%;animation:gr 1s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*90ms)}@keyframes gr{from{transform:translateY(110%) scaleY(1.4);opacity:0}}
+@media(max-width:800px){section,section.r{justify-content:flex-start;align-items:flex-end;padding-bottom:9vh}.col{max-width:none}.mini{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.rv{transition:none;opacity:1;transform:none;filter:none}.bar:after{transition:none;width:var(--w)}.pn span{animation:none}}
+</style></head><body>
+<div id="ld"><div class="pn"><div id="lw"></div></div></div>
+<canvas id="gl"></canvas><div class="dz"></div>
+<div class="hud"><a href="https://claude.ai/artifact/Ghq8mExvNjRNKaxg8T64r7">← Portfolio</a><span id="ch">Overview</span></div>
+<main>
+<section><div class="col"><span class="tag rv">AI-powered farming · Ethiopia</span><h1 class="rv">Indie<em>Crop</em></h1><p class="lead rv">Smarter crop decisions and verified progress, for the people who grow Ethiopia’s food.</p><span class="n rv">Scroll to watch it grow ↓</span></div></section>
+
+<section class="c"><div class="n rv">Our mission</div><h2 class="rv">Grow better. Prove it. Scale it.</h2>
+<div class="mini"><div class="card rv"><h3>Decide better</h3><p>Informed crop choices from climate, soil and market data.</p></div><div class="card rv"><h3>Prove progress</h3><p>Verified records of farm activities and sustainability actions.</p></div><div class="card rv"><h3>Scale impact</h3><p>Reliable insights for governments and NGOs to fund and plan.</p></div></div></section>
+
+<section class="r"><div class="col"><div class="n rv">Role 01 · Field Agent</div><h2 class="rv">From the field to the best crop</h2><p class="rv">Agents capture location, soil, water use and yield history, verify the farm by GPS, and hand farmers a ranked recommendation on the spot.</p>
+<div class="card rv"><div class="chips"><span>📍 Location</span><span>Soil type</span><span>Water usage</span><span>Yield history</span><span class="g">✓ GPS verified</span></div>
+<div class="rk"><i>1</i><b>Teff</b><div class="bar" style="--w:92%"></div></div><div class="rk"><i>2</i><b>Wheat</b><div class="bar" style="--w:78%"></div></div><div class="rk"><i>3</i><b>Chickpea</b><div class="bar" style="--w:66%"></div></div>
+<div class="fn">Top 3 crops ranked by profitability &amp; climate resilience · Illustrative UI</div></div></div></section>
+
+<section><div class="col"><div class="n rv">Role 02 · NGO / FAO</div><h2 class="rv">See every program, in real time</h2><p class="rv">Track adoption, measure yield and sustainability gains, and let the AI assistant point to the farms that need support next.</p>
+<div class="card rv"><div class="big">68%<small>adoption</small></div><div class="bar g" style="--w:68%;margin:14px 0"></div><div class="row">Farms needing targeted support <b>12 · AI</b></div><div class="row">Yield improvement <b>+24%</b></div><div class="row">Sustainability score <b><span class="ok">RISING</span></b></div><div class="fn">Illustrative UI</div></div></div></section>
+
+<section class="r"><div class="col"><div class="n rv">Role 03 · Government</div><h2 class="rv">Policy backed by ground truth</h2><p class="rv">Compare performance across kebeles, woredas and regions, get data-backed recommendations for subsidies and climate adaptation, and export reports in one click.</p>
+<div class="card rv"><div class="chips"><span>Kebele</span><span class="g">Woreda</span><span>Region</span></div>
+<div class="rk"><i>A</i><b>Woreda A</b><div class="bar g" style="--w:84%"></div></div><div class="rk"><i>B</i><b>Woreda B</b><div class="bar g" style="--w:61%"></div></div><div class="rk"><i>C</i><b>Woreda C</b><div class="bar" style="--w:38%"></div></div>
+<span class="btn">Export report ↗</span><div class="fn">Illustrative UI</div></div></div></section>
+
+<section class="c"><div class="n rv">Decide better · Prove progress · Scale impact</div><h2 class="rv">Better harvests start with better decisions.</h2><a class="pill rv" href="https://claude.ai/artifact/Ghq8mExvNjRNKaxg8T64r7">Back to portfolio</a></section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),rm=matchMedia('(prefers-reduced-motion:reduce)').matches,mob=innerWidth<800;let ready=false;
+$('#lw').innerHTML='INDIECROP'.split('').map((c,i)=>`<span style="--i:${i}">${c}</span>`).join('');
+const cs=[...document.querySelectorAll('.card')];if(!rm)cs.forEach(c=>c.classList.add('sk'));
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&ready){e.target.classList.add('in');io.unobserve(e.target);if(e.target.classList.contains('card'))setTimeout(()=>e.target.classList.remove('sk'),400+Math.random()*400)}}),{threshold:.15});
+setTimeout(()=>{ready=true;const l=$('#ld');l.classList.add('out');document.querySelectorAll('.rv').forEach(e=>io.observe(e));setTimeout(()=>l.remove(),1000)},rm?200:2100);
+const T=window.THREE;
+if(T){try{
+const R=new T.WebGLRenderer({canvas:$('#gl'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,1.5));
+const S=new T.Scene(),C=new T.PerspectiveCamera(50,1,.1,300);S.fog=new T.FogExp2(0x2a0507,.017);
+S.add(new T.AmbientLight(0xff9a80,.6));const dl=new T.DirectionalLight(0xffb080,1.4);dl.position.set(-8,10,-10);S.add(dl);
+const H=(x,z)=>Math.sin(x*.3)*.5+Math.cos(z*.35)*.4;
+const tg=new T.PlaneGeometry(90,70,90,70).rotateX(-Math.PI/2),pa=tg.attributes.position;for(let i=0;i<pa.count;i++)pa.setY(i,H(pa.getX(i),pa.getZ(i)));tg.computeVertexNormals();
+S.add(new T.Mesh(tg,new T.MeshStandardMaterial({color:0x3a0d08,flatShading:true,roughness:1})));
+const sun=new T.Mesh(new T.SphereGeometry(7,32,16),new T.MeshBasicMaterial({color:0xff3b1a,fog:false}));sun.position.set(0,5,-55);S.add(sun);
+/* crops */
+const pts=[];for(let z=-13;z<=9;z+=mob?.95:.75){if(((z+14)%6)<.9)continue;for(let x=-17;x<=17;x+=mob?.8:.55)pts.push([x+(Math.random()-.5)*.15,z,.45+Math.random()*.6,Math.random()*6])}
+const cm=new T.MeshStandardMaterial({color:0x2fa84f,roughness:.8}),cr=new T.InstancedMesh(new T.ConeGeometry(.1,1,5).translate(0,.5,0),cm,pts.length),o=new T.Object3D(),col=new T.Color();
+pts.forEach((p,i)=>{cr.setColorAt(i,col.setScalar(.7+Math.random()*.3))});S.add(cr);
+const G0=new T.Color(0x2fa84f),G1=new T.Color(0xe0b13a);
+/* agent pin */
+const px=2,pz=0,pin=new T.Group(),pm=new T.MeshBasicMaterial({color:0xffffff});pin.add(new T.Mesh(new T.SphereGeometry(.4,16,10),pm).translateY(1.7),new T.Mesh(new T.ConeGeometry(.3,.9,12).rotateX(Math.PI),pm).translateY(.8));
+const rg=new T.Mesh(new T.RingGeometry(.5,.62,40).rotateX(-Math.PI/2),new T.MeshBasicMaterial({color:0xff2b2b,transparent:true}));rg.position.y=.1;pin.add(rg);pin.position.set(px,H(px,pz),pz);S.add(pin);
+/* region tiles: flat heat (NGO) -> bars (government) */
+const TI=[],tm=new T.MeshStandardMaterial({transparent:true,opacity:0,roughness:.5}),tl=new T.InstancedMesh(new T.BoxGeometry(1,1,1),tm,42);
+for(let i=0;i<7;i++)for(let j=0;j<6;j++){const v=.5+.5*Math.sin(i*1.3+j*.9)*Math.cos(j*.7+.5);TI.push({x:(i-3)*4.4,z:(j-3)*4.4+1,v});tl.setColorAt(i*6+j,col.setHSL(v*.33,.85,.5))}
+S.add(tl);
+const ss=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)},lp=(a,b,t)=>a+(b-a)*t;
+const K=[[0,4,22,0,2,0],[-6,3,16,0,1,0],[4.5,3.2,8,2,.5,0],[0,16,13,0,0,0],[0,21,16,0,0,-2],[0,9,22,0,2,-6]];
+const rs=()=>{R.setSize(innerWidth,innerHeight,false);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()};rs();addEventListener('resize',rs);
+let mx=0,my=0,cp=0;addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5});
+const CH=['Overview','Mission','Field Agent','NGO / FAO','Government','Impact'],clk=new T.Clock();
+(function A(){requestAnimationFrame(A);const t=clk.getElapsedTime(),mxs=document.body.scrollHeight-innerHeight,p=mxs>0?scrollY/mxs:0;cp+=(p-cp)*.08;
+const g=ss(0,.2,cp),rp=ss(.1,.42,cp),N=ss(.48,.6,cp),Gv=ss(.68,.8,cp);
+cm.color.lerpColors(G0,G1,rp);
+pts.forEach((q,i)=>{o.position.set(q[0],H(q[0],q[1]),q[1]);o.rotation.set(0,0,Math.sin(t*1.2+q[3])*.07);o.scale.set(1,.001+g*q[2]*1.3,1);o.updateMatrix();cr.setMatrixAt(i,o.matrix)});cr.instanceMatrix.needsUpdate=true;
+sun.position.y=lp(-4,6,ss(0,.25,cp));
+const a=ss(.3,.4,cp)*(1-ss(.46,.56,cp));pin.scale.setScalar(.001+a);const k=(t*.7)%1;rg.scale.setScalar(1+k*5);rg.material.opacity=(1-k)*a;
+tm.opacity=.7*N;TI.forEach((q,i)=>{const h=lp(.08,.4+q.v*8,Gv);o.position.set(q.x,1.6+h/2,q.z);o.rotation.set(0,0,0);o.scale.set(4,h,4);o.updateMatrix();tl.setMatrixAt(i,o.matrix)});tl.instanceMatrix.needsUpdate=true;tl.visible=N>0;
+const sg=Math.min(4,Math.floor(cp*5)),f=ss(0,1,cp*5-sg),a1=K[sg],b1=K[sg+1];
+C.position.set(lp(a1[0],b1[0],f)+mx*1.4,lp(a1[1],b1[1],f)-my*.8,lp(a1[2],b1[2],f));C.lookAt(lp(a1[3],b1[3],f),lp(a1[4],b1[4],f),lp(a1[5],b1[5],f));
+$('#ch').textContent=CH[Math.min(5,Math.round(cp*5))];R.render(S,C)})();
+}catch(e){console.warn('3D off',e)}}
+</script></body></html>

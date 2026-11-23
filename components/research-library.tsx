@@ -553,198 +553,162 @@ export function ResearchLibrary() {
   }, [activePaper])
 
   return (
-    <section id="research" className="py-12 border-t border-border">
-      <div className="space-y-6">
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                Research & Foundation Reading
-              </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-secondary text-foreground font-semibold">
-                Interactive Library
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
-              Foundational literature in LLMs, attention mechanisms, agentic reasoning, multimodal architectures, and hybrid retrieval. Click any paper to read full executive notes, mathematical formulations, and interactive reader documents.
-            </p>
-          </div>
-
-          <span className="text-xs text-muted-foreground font-mono shrink-0">
+    <section id="research">
+      <div className="head">
+        <div className="ghost" aria-hidden="true">
+          RESEARCH
+        </div>
+        <small className="rv">Interactive Library</small>
+        <h2 className="glow rv">Research &amp; Foundation Reading</h2>
+        <div className="bar" />
+        <p className="rv">
+          Foundational literature in LLMs, attention mechanisms, agentic reasoning, multimodal
+          architectures, and hybrid retrieval.{" "}
+          <span id="cnt" style={{ color: "#ffb3b3" }}>
             {filteredPapers.length} / {PAPERS_DATA.length} Papers
           </span>
-        </div>
-
-        {/* Search & Filter Toolbar */}
-        <div className="space-y-3">
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search paper by title, author, or keyword (e.g., attention, RRF, LoRA)..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-md bg-secondary/30 border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent font-sans"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap gap-1.5">
-            {CATEGORIES.map((cat) => {
-              const isSelected = selectedCategory === cat
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-2.5 py-1 rounded text-xs font-mono transition-colors ${
-                    isSelected
-                      ? "bg-foreground text-background font-semibold"
-                      : "bg-secondary/40 border border-border/80 text-muted-foreground hover:text-foreground hover:bg-secondary"
-                  }`}
-                >
-                  {cat}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Papers List */}
-        <div className="divide-y divide-border/70 border-t border-b border-border/70">
-          {filteredPapers.map((paper) => (
-            <div
-              key={paper.id}
-              className="py-5 space-y-2.5 group hover:bg-secondary/10 transition-colors rounded-sm px-1.5"
-            >
-              {/* Top Meta Line */}
-              <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1.5">
-                <button
-                  onClick={() => handleOpenPaper(paper)}
-                  className="text-left text-sm font-semibold text-foreground group-hover:text-accent transition-colors inline-flex items-center gap-1.5 flex-1"
-                >
-                  <BookOpen className="w-3.5 h-3.5 text-accent opacity-80 shrink-0" />
-                  <span className="hover:underline underline-offset-2">{paper.title}</span>
-                </button>
-
-                <div className="flex items-center gap-2 text-[11px] font-mono text-muted-foreground shrink-0">
-                  <span className="px-1.5 py-0.5 rounded bg-secondary text-foreground/80 font-medium">
-                    {paper.venue} {paper.year}
-                  </span>
-                  <span>·</span>
-                  <span className="truncate max-w-[120px]">{paper.category}</span>
-                </div>
-              </div>
-
-              {/* Authors */}
-              <div className="text-xs font-mono text-muted-foreground">
-                {paper.authors}
-              </div>
-
-              {/* Core Insight */}
-              <p className="text-xs text-foreground/90 leading-relaxed">
-                <span className="font-medium text-foreground">Core contribution: </span>
-                {paper.keyInsight}
-              </p>
-
-              {/* Relevance in Engineering & Read Actions */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 border-t border-border/30">
-                <div className="text-[11px] text-muted-foreground font-mono flex items-start gap-1.5">
-                  <Tag className="w-3 h-3 text-accent shrink-0 mt-0.5" />
-                  <span>
-                    <strong className="text-foreground/80 font-normal">Engineering context: </strong>
-                    {paper.relevanceNote}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0 text-xs">
-                  <button
-                    onClick={() => handleOpenPaper(paper)}
-                    className="px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 text-foreground font-medium text-[11px] border border-border inline-flex items-center gap-1 transition-colors"
-                  >
-                    <FileText className="w-3 h-3 text-accent" />
-                    <span>Read In-App</span>
-                  </button>
-
-                  <a
-                    href={paper.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-1 text-muted-foreground hover:text-foreground transition-colors"
-                    title="Open on arXiv"
-                  >
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {filteredPapers.length === 0 && (
-            <div className="py-8 text-center text-xs text-muted-foreground font-mono">
-              No research papers matched your search query. Try clearing filters.
-            </div>
-          )}
-        </div>
+        </p>
       </div>
 
-      {/* ========================================================= */}
+      {/* Search & Category Chips Toolbar */}
+      <div className="tools">
+        <input
+          id="q"
+          type="text"
+          placeholder="Search paper by title, author, or keyword (e.g., attention, RRF, LoRA)..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      <div className="tools chips" id="chips">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            type="button"
+            onClick={() => setSelectedCategory(cat)}
+            className={`pill ${selectedCategory === cat ? "on" : ""}`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Papers Grid */}
+      <div className="grid-cards" id="papers">
+        {filteredPapers.map((paper) => (
+          <div key={paper.id} className="paper rv justify-between">
+            <div>
+              <small>
+                {paper.venue} {paper.year} · {paper.category}
+              </small>
+              <h5>{paper.title}</h5>
+              <div className="au">{paper.authors}</div>
+              <p>
+                <b>Core contribution:</b> {paper.keyInsight}
+              </p>
+              <p>
+                <b>Engineering context:</b> {paper.relevanceNote}
+              </p>
+            </div>
+
+            <div className="ln flex items-center gap-2.5 flex-wrap" style={{ marginTop: "18px" }}>
+              <button
+                type="button"
+                onClick={() => handleOpenPaper(paper)}
+                className="pill"
+                style={{ padding: "7px 18px", fontSize: "13px" }}
+              >
+                <FileText className="w-3.5 h-3.5 text-[#ffb3b3]" />
+                <span>Read In-App</span>
+              </button>
+
+              <a
+                href={paper.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white transition-colors px-2 py-1"
+                title="Open on arXiv"
+              >
+                <span>arXiv</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+        ))}
+
+        {filteredPapers.length === 0 && (
+          <p style={{ gridColumn: "1 / -1", textAlign: "center", color: "#fff9" }}>
+            No papers match.{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("")
+                setSelectedCategory("All")
+              }}
+              className="underline text-white cursor-pointer"
+            >
+              Reset filters
+            </button>
+          </p>
+        )}
+      </div>
+
       {/* IN-APP COMPREHENSIVE PAPER READER MODAL */}
-      {/* ========================================================= */}
       {activePaper && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-background/85 backdrop-blur-md animate-in fade-in duration-150">
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="absolute inset-0" onClick={() => setActivePaper(null)} />
           <div
-            className={`relative bg-card border border-border rounded-lg shadow-2xl flex flex-col overflow-hidden transition-all duration-200 ${
+            className={`relative z-10 bg-[#120607] border border-[#ff2b2b]/40 shadow-[0_0_90px_#d6040744] flex flex-col overflow-hidden transition-all duration-200 text-white ${
               isFullscreen
                 ? "w-full h-full max-w-none max-h-none rounded-none"
-                : "w-full max-w-4xl h-[90vh] max-h-[850px]"
+                : "w-full max-w-4xl h-[90vh] max-h-[850px] rounded-[28px]"
             }`}
           >
             {/* Modal Top Header Bar */}
-            <div className="px-5 py-3.5 border-b border-border bg-secondary/40 flex items-center justify-between gap-4">
+            <div className="px-5 py-3.5 border-b border-white/15 bg-black/40 flex items-center justify-between gap-4">
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="px-2 py-0.5 rounded bg-primary text-primary-foreground text-[10px] font-mono uppercase font-semibold shrink-0">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#d60407] text-white text-[10px] font-mono uppercase font-semibold shrink-0">
                   {activePaper.category}
                 </span>
-                <h3 className="text-sm font-semibold text-foreground truncate">
+                <h3 className="font-serif text-lg sm:text-xl text-white truncate">
                   {activePaper.title}
                 </h3>
               </div>
 
-              {/* Window Controls */}
-              <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground">
+              <div className="flex items-center gap-1.5 shrink-0 text-white/70">
                 <button
+                  type="button"
                   onClick={handlePrevPaper}
-                  className="p-1.5 rounded hover:bg-secondary hover:text-foreground transition-colors"
+                  className="p-1.5 rounded-full hover:bg-white/10 hover:text-white transition-colors"
                   title="Previous Paper"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
+                  type="button"
                   onClick={handleNextPaper}
-                  className="p-1.5 rounded hover:bg-secondary hover:text-foreground transition-colors"
+                  className="p-1.5 rounded-full hover:bg-white/10 hover:text-white transition-colors"
                   title="Next Paper"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
+                  type="button"
                   onClick={() => setIsFullscreen(!isFullscreen)}
-                  className="p-1.5 rounded hover:bg-secondary hover:text-foreground transition-colors hidden sm:inline-flex"
+                  className="p-1.5 rounded-full hover:bg-white/10 hover:text-white transition-colors hidden sm:inline-flex"
                   title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
                 >
                   <Maximize2 className="w-4 h-4" />
                 </button>
                 <button
+                  type="button"
                   onClick={() => setActivePaper(null)}
-                  className="p-1.5 rounded hover:bg-secondary hover:text-foreground transition-colors ml-1 text-foreground"
+                  className="p-1.5 rounded-full hover:bg-[#d60407] text-white transition-colors ml-1"
                   title="Close Reader"
                 >
                   <X className="w-5 h-5" />
@@ -753,14 +717,15 @@ export function ResearchLibrary() {
             </div>
 
             {/* Navigation Tabs Bar */}
-            <div className="px-5 border-b border-border bg-card flex items-center justify-between overflow-x-auto gap-4">
+            <div className="px-5 border-b border-white/15 bg-[#160709] flex items-center justify-between overflow-x-auto gap-4">
               <div className="flex items-center gap-4 text-xs font-mono">
                 <button
+                  type="button"
                   onClick={() => setReaderTab("digest")}
                   className={`py-2.5 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                     readerTab === "digest"
-                      ? "border-accent text-foreground font-semibold"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
+                      ? "border-[#ff2b2b] text-white font-semibold"
+                      : "border-transparent text-white/60 hover:text-white"
                   }`}
                 >
                   <FileText className="w-3.5 h-3.5" />
@@ -768,23 +733,25 @@ export function ResearchLibrary() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => setReaderTab("math")}
                   className={`py-2.5 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                     readerTab === "math"
-                      ? "border-accent text-foreground font-semibold"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
+                      ? "border-[#ff2b2b] text-white font-semibold"
+                      : "border-transparent text-white/60 hover:text-white"
                   }`}
                 >
                   <Code className="w-3.5 h-3.5" />
-                  <span>Math & Formulations</span>
+                  <span>Math &amp; Formulations</span>
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => setReaderTab("engineering")}
                   className={`py-2.5 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                     readerTab === "engineering"
-                      ? "border-accent text-foreground font-semibold"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
+                      ? "border-[#ff2b2b] text-white font-semibold"
+                      : "border-transparent text-white/60 hover:text-white"
                   }`}
                 >
                   <Sparkles className="w-3.5 h-3.5" />
@@ -792,11 +759,12 @@ export function ResearchLibrary() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => setReaderTab("doc")}
                   className={`py-2.5 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap ${
                     readerTab === "doc"
-                      ? "border-accent text-foreground font-semibold"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
+                      ? "border-[#ff2b2b] text-white font-semibold"
+                      : "border-transparent text-white/60 hover:text-white"
                   }`}
                 >
                   <BookOpen className="w-3.5 h-3.5" />
@@ -804,15 +772,15 @@ export function ResearchLibrary() {
                 </button>
               </div>
 
-              {/* Quick Actions */}
               <div className="hidden sm:flex items-center gap-2 text-xs shrink-0 py-1">
                 <button
+                  type="button"
                   onClick={() => handleCopyCitation(activePaper)}
-                  className="px-2 py-1 rounded bg-secondary hover:bg-secondary/80 text-[11px] font-mono text-muted-foreground hover:text-foreground border border-border inline-flex items-center gap-1 transition-colors"
+                  className="px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/15 text-[11px] font-mono text-white/80 hover:text-white border border-white/15 inline-flex items-center gap-1 transition-colors"
                 >
                   {copiedId === activePaper.id ? (
                     <>
-                      <Check className="w-3 h-3 text-accent" />
+                      <Check className="w-3 h-3 text-[#ff6a6a]" />
                       <span>Copied Citation</span>
                     </>
                   ) : (
@@ -824,7 +792,7 @@ export function ResearchLibrary() {
                   href={activePaper.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-2 py-1 rounded bg-secondary hover:bg-secondary/80 text-[11px] font-mono text-muted-foreground hover:text-foreground border border-border inline-flex items-center gap-1 transition-colors"
+                  className="px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/15 text-[11px] font-mono text-white/80 hover:text-white border border-white/15 inline-flex items-center gap-1 transition-colors"
                 >
                   <span>arXiv Source</span>
                   <ArrowUpRight className="w-3 h-3 opacity-70" />
@@ -834,84 +802,74 @@ export function ResearchLibrary() {
 
             {/* Reader Content Body */}
             <div className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-6">
-              {/* ================= TAB 1: DIGEST ================= */}
               {readerTab === "digest" && (
                 <div className="space-y-6 max-w-3xl">
-                  {/* Paper Header */}
-                  <div className="space-y-2 border-b border-border pb-4">
-                    <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-muted-foreground">
-                      <span className="px-2 py-0.5 rounded bg-secondary text-foreground font-semibold">
+                  <div className="space-y-2 border-b border-white/15 pb-4">
+                    <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-[#ffb0b0]">
+                      <span className="px-2 py-0.5 rounded-full bg-[#d60407]/25 border border-[#ff2b2b]/40 text-white font-semibold">
                         {activePaper.venue} {activePaper.year}
                       </span>
                       <span>·</span>
                       <span>arXiv:{activePaper.arxivId}</span>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">
+                    <h2 className="font-serif text-2xl sm:text-3xl text-white tracking-tight">
                       {activePaper.title}
                     </h2>
-                    <p className="text-xs font-mono text-muted-foreground leading-relaxed">
+                    <p className="text-xs font-mono text-white/60 leading-relaxed">
                       {activePaper.authors}
                     </p>
                   </div>
 
-                  {/* Applied Project Link if available */}
                   {activePaper.appliedInProject && (
-                    <div className="p-3.5 rounded-md bg-secondary/40 border border-border text-xs flex items-start gap-2.5">
-                      <Sparkles className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                    <div className="p-3.5 rounded-2xl bg-[#d60407]/15 border border-[#ff2b2b]/30 text-xs flex items-start gap-2.5">
+                      <Sparkles className="w-4 h-4 text-[#ff6a6a] shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-semibold text-foreground">Production Synergy: </span>
-                        <span className="text-muted-foreground">{activePaper.appliedInProject}</span>
+                        <span className="font-semibold text-white">Production Synergy: </span>
+                        <span className="text-white/80">{activePaper.appliedInProject}</span>
                       </div>
                     </div>
                   )}
 
-                  {/* Abstract Box */}
                   <div className="space-y-2">
-                    <h4 className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                    <h4 className="text-xs font-mono uppercase tracking-wider text-[#ffb0b0]">
                       Abstract
                     </h4>
-                    <p className="text-sm text-foreground/90 leading-relaxed font-sans bg-secondary/20 p-4 rounded-md border border-border/60">
+                    <p className="text-sm text-white/90 leading-relaxed bg-black/40 p-4 rounded-2xl border border-white/10">
                       {activePaper.abstract}
                     </p>
                   </div>
 
-                  {/* Architecture Points */}
                   <div className="space-y-3 pt-2">
-                    <h4 className="text-xs font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-accent" />
+                    <h4 className="text-xs font-mono uppercase tracking-wider text-[#ffb0b0] flex items-center gap-1.5">
+                      <Layers className="w-3.5 h-3.5 text-[#ff6a6a]" />
                       <span>Key Architectural Innovations</span>
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {activePaper.architecturePoints.map((pt) => (
-                        <div key={pt.title} className="p-3.5 rounded-md bg-secondary/30 border border-border space-y-1.5">
-                          <div className="text-xs font-semibold text-foreground">
-                            {pt.title}
-                          </div>
-                          <p className="text-xs text-muted-foreground leading-relaxed">
-                            {pt.desc}
-                          </p>
+                        <div
+                          key={pt.title}
+                          className="p-3.5 rounded-2xl bg-white/5 border border-white/15 space-y-1.5"
+                        >
+                          <div className="text-xs font-semibold text-white">{pt.title}</div>
+                          <p className="text-xs text-white/75 leading-relaxed">{pt.desc}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Empirical Benchmarks */}
                   <div className="space-y-3 pt-2">
-                    <h4 className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                    <h4 className="text-xs font-mono uppercase tracking-wider text-[#ffb0b0]">
                       Key Benchmark Results
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {activePaper.benchmarks.map((b) => (
-                        <div key={b.metric} className="p-3 rounded-md bg-secondary/20 border border-border/70 space-y-1">
-                          <div className="text-[11px] font-mono text-muted-foreground">
-                            {b.metric}
-                          </div>
-                          <div className="text-sm font-semibold text-accent">
-                            {b.result}
-                          </div>
-                          <div className="text-[10px] font-mono text-muted-foreground">
-                            vs {b.baseline}
-                          </div>
+                        <div
+                          key={b.metric}
+                          className="p-3 rounded-2xl bg-black/45 border border-[#ff2b2b]/25 space-y-1"
+                        >
+                          <div className="text-[11px] font-mono text-white/65">{b.metric}</div>
+                          <div className="text-sm font-semibold text-[#ff6a6a]">{b.result}</div>
+                          <div className="text-[10px] font-mono text-white/55">vs {b.baseline}</div>
                         </div>
                       ))}
                     </div>
@@ -919,52 +877,48 @@ export function ResearchLibrary() {
                 </div>
               )}
 
-              {/* ================= TAB 2: MATH & FORMULAS ================= */}
               {readerTab === "math" && (
                 <div className="space-y-6 max-w-3xl">
                   <div className="space-y-1">
-                    <h3 className="text-base font-semibold text-foreground">
-                      Mathematical Foundations & Equations
+                    <h3 className="font-serif text-2xl text-white">
+                      Mathematical Foundations &amp; Equations
                     </h3>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-white/70">
                       Exact formal representations and operational mechanisms introduced in the paper.
                     </p>
                   </div>
 
                   <div className="space-y-4">
                     {activePaper.mathFormulas.map((f, idx) => (
-                      <div key={f.label} className="p-4 rounded-lg bg-secondary/30 border border-border space-y-2.5">
+                      <div
+                        key={f.label}
+                        className="p-4 rounded-2xl bg-white/5 border border-white/15 space-y-2.5"
+                      >
                         <div className="flex items-center justify-between text-xs font-mono">
-                          <span className="text-accent font-semibold">
+                          <span className="text-[#ff6a6a] font-semibold">
                             Equation 0{idx + 1}: {f.label}
                           </span>
                         </div>
 
-                        {/* Styled Equation Box */}
-                        <div className="p-3.5 rounded bg-background border border-border font-mono text-xs sm:text-sm text-foreground overflow-x-auto text-center py-4 select-all">
+                        <div className="p-3.5 rounded-xl bg-black/70 border border-[#ff2b2b]/30 font-mono text-xs sm:text-sm text-white overflow-x-auto text-center py-4 select-all">
                           {f.formula}
                         </div>
 
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          {f.explanation}
-                        </p>
+                        <p className="text-xs text-white/75 leading-relaxed">{f.explanation}</p>
                       </div>
                     ))}
                   </div>
 
-                  {/* Implementation Snippet Preview */}
                   <div className="space-y-2 pt-2">
-                    <h4 className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                    <h4 className="text-xs font-mono uppercase tracking-wider text-[#ffb0b0]">
                       Engineering Implementation Note
                     </h4>
-                    <div className="p-4 rounded bg-secondary/20 border border-border text-xs text-muted-foreground space-y-2 font-mono">
-                      <div className="text-foreground font-semibold">
+                    <div className="p-4 rounded-2xl bg-black/45 border border-white/15 text-xs text-white/75 space-y-2 font-mono">
+                      <div className="text-white font-semibold">
                         // Core Execution Characteristic:
                       </div>
-                      <p className="leading-relaxed">
-                        {activePaper.keyInsight}
-                      </p>
-                      <div className="pt-2 text-[11px] text-accent">
+                      <p className="leading-relaxed">{activePaper.keyInsight}</p>
+                      <div className="pt-2 text-[11px] text-[#ff6a6a]">
                         → Applied in: {activePaper.relevanceNote}
                       </div>
                     </div>
@@ -972,50 +926,54 @@ export function ResearchLibrary() {
                 </div>
               )}
 
-              {/* ================= TAB 3: ENGINEERING TAKEAWAYS ================= */}
               {readerTab === "engineering" && (
                 <div className="space-y-6 max-w-3xl">
                   <div className="space-y-1">
-                    <h3 className="text-base font-semibold text-foreground">
+                    <h3 className="font-serif text-2xl text-white">
                       Production Engineering Takeaways
                     </h3>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-white/70">
                       Practical guidelines for AI engineers implementing these architectures in production systems.
                     </p>
                   </div>
 
                   <div className="space-y-3">
                     {activePaper.engineeringTakeaways.map((takeaway, idx) => (
-                      <div key={idx} className="p-4 rounded-lg bg-secondary/30 border border-border flex items-start gap-3">
-                        <span className="w-5 h-5 rounded-full bg-accent/20 text-accent font-mono text-xs flex items-center justify-center shrink-0 font-semibold mt-0.5">
+                      <div
+                        key={idx}
+                        className="p-4 rounded-2xl bg-white/5 border border-white/15 flex items-start gap-3"
+                      >
+                        <span className="w-5 h-5 rounded-full bg-[#d60407]/30 text-[#ff6a6a] font-mono text-xs flex items-center justify-center shrink-0 font-semibold mt-0.5">
                           {idx + 1}
                         </span>
-                        <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
                           {takeaway}
                         </p>
                       </div>
                     ))}
                   </div>
 
-                  <div className="p-4 rounded-lg bg-secondary/20 border border-border/80 space-y-2 text-xs">
-                    <span className="font-mono text-muted-foreground uppercase text-[10px] block">
+                  <div className="p-4 rounded-2xl bg-black/45 border border-[#ff2b2b]/25 space-y-2 text-xs">
+                    <span className="font-mono text-[#ffb0b0] uppercase text-[10px] block">
                       Portfolio Architecture Connection
                     </span>
-                    <p className="text-foreground leading-relaxed">
-                      This paper directly informs the systems engineering principles applied across Yeabsera&apos;s projects — from local-first vector fusion in <strong>Surf</strong> to multi-agent consensus in <strong>Medscope</strong> and low-latency voice pipelines in <strong>Omniq</strong>.
+                    <p className="text-white/85 leading-relaxed">
+                      This paper directly informs the systems engineering principles applied across
+                      Yeabsera&apos;s projects — from local-first vector fusion in <strong>Surf</strong>{" "}
+                      to multi-agent consensus in <strong>Medscope</strong> and low-latency voice
+                      pipelines in <strong>Omniq</strong>.
                     </p>
                   </div>
                 </div>
               )}
 
-              {/* ================= TAB 4: LIVE DOCUMENT / PDF READER ================= */}
               {readerTab === "doc" && (
                 <div className="h-full min-h-[550px] flex flex-col space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                    <div className="flex items-center gap-2 text-muted-foreground font-mono">
+                    <div className="flex items-center gap-2 text-white/70 font-mono">
                       <span>Viewer Mode: Live arXiv Document Embed</span>
                       <span>·</span>
-                      <span className="text-foreground font-semibold">{activePaper.arxivId}</span>
+                      <span className="text-white font-semibold">{activePaper.arxivId}</span>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -1023,7 +981,7 @@ export function ResearchLibrary() {
                         href={activePaper.arxivPdfUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-2.5 py-1 rounded bg-secondary hover:bg-secondary/80 text-foreground text-xs font-medium border border-border inline-flex items-center gap-1 transition-colors"
+                        className="px-3 py-1 rounded-full bg-white/10 hover:bg-[#d60407] text-white text-xs font-medium border border-white/20 inline-flex items-center gap-1 transition-colors"
                       >
                         <span>Open Raw PDF</span>
                         <ArrowUpRight className="w-3 h-3" />
@@ -1031,8 +989,7 @@ export function ResearchLibrary() {
                     </div>
                   </div>
 
-                  {/* Document Embed Container */}
-                  <div className="flex-1 w-full min-h-[500px] border border-border rounded-lg overflow-hidden bg-background relative">
+                  <div className="flex-1 w-full min-h-[500px] border border-white/15 rounded-2xl overflow-hidden bg-white relative">
                     <iframe
                       src={activePaper.arxivHtmlUrl}
                       title={`Paper: ${activePaper.title}`}
@@ -1040,27 +997,30 @@ export function ResearchLibrary() {
                       loading="lazy"
                     />
                   </div>
-                  <p className="text-[11px] font-mono text-muted-foreground text-center">
-                    Rendered via ar5iv web paper viewer. If your browser blocks iframe rendering, use the &quot;Open Raw PDF&quot; button above.
+                  <p className="text-[11px] font-mono text-white/60 text-center">
+                    Rendered via ar5iv web paper viewer. If your browser blocks iframe rendering, use
+                    the &quot;Open Raw PDF&quot; button above.
                   </p>
                 </div>
               )}
             </div>
 
             {/* Modal Bottom Toolbar */}
-            <div className="px-5 py-3 border-t border-border bg-secondary/30 flex items-center justify-between text-xs font-mono">
-              <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="px-5 py-3 border-t border-white/15 bg-black/40 flex items-center justify-between text-xs font-mono">
+              <div className="flex items-center gap-2 text-white/70">
                 <button
+                  type="button"
                   onClick={handlePrevPaper}
-                  className="hover:text-foreground inline-flex items-center gap-0.5 transition-colors"
+                  className="hover:text-white inline-flex items-center gap-0.5 transition-colors"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
                   <span>Prev</span>
                 </button>
                 <span>·</span>
                 <button
+                  type="button"
                   onClick={handleNextPaper}
-                  className="hover:text-foreground inline-flex items-center gap-0.5 transition-colors"
+                  className="hover:text-white inline-flex items-center gap-0.5 transition-colors"
                 >
                   <span>Next</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -1072,15 +1032,16 @@ export function ResearchLibrary() {
                   href={activePaper.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
+                  className="text-white/70 hover:text-white inline-flex items-center gap-1 transition-colors"
                 >
                   <span>View on arXiv.org</span>
                   <ArrowUpRight className="w-3 h-3" />
                 </a>
 
                 <button
+                  type="button"
                   onClick={() => setActivePaper(null)}
-                  className="px-3 py-1 rounded bg-secondary border border-border text-foreground hover:bg-secondary/80 transition-colors"
+                  className="px-3.5 py-1 rounded-full bg-white/10 border border-white/20 text-white hover:bg-[#d60407] transition-colors"
                 >
                   Close
                 </button>

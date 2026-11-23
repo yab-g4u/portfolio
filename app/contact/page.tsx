@@ -10,19 +10,17 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-emerald-500/20 selection:text-emerald-950 dark:selection:text-emerald-100 font-sans flex flex-col justify-between">
-      {/* Top Minimal Navigation */}
+    <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-[#d60407]/40 selection:text-white font-sans flex flex-col justify-between overflow-x-hidden">
+      {/* Top Fixed Navigation */}
       <Navigation />
 
-      {/* Main Single Column Layout */}
-      <main className="max-w-[720px] w-full mx-auto px-4 sm:px-6 overflow-x-hidden flex-1">
+      {/* Main Content */}
+      <main className="w-full pt-20 flex-1">
         <Contact isStandalone={true} />
       </main>
 
       {/* Global Footer */}
-      <div className="max-w-[720px] w-full mx-auto px-4 sm:px-6">
-        <Footer />
-      </div>
+      <Footer />
     </div>
   )
 }

@@ -1,37 +1,40 @@
-"use client"
-
+import { Preloader } from "@/components/preloader"
+import { PortfolioShell } from "@/components/portfolio-shell"
 import { Navigation } from "@/components/navigation"
-import { Intro } from "@/components/intro"
+import { HeroRed } from "@/components/hero-red"
 import { WhatIBuild } from "@/components/what-i-build"
 import { FavoriteSpotlight } from "@/components/favorite-spotlight"
 import { SelectedWork } from "@/components/selected-work"
-import { ExtendedProjects } from "@/components/extended-projects"
-import { ExperienceAchievements } from "@/components/experience-achievements"
+import { WritingPreview } from "@/components/writing-preview"
 import { ResearchLibrary } from "@/components/research-library"
+import { ExperienceAchievements } from "@/components/experience-achievements"
 import { About } from "@/components/about"
 import { Contact } from "@/components/contact"
 import { Footer } from "@/components/footer"
+import { getAllPosts } from "@/lib/writing"
 
 export default function Portfolio() {
+  const posts = getAllPosts()
+
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-emerald-500/20 selection:text-emerald-950 dark:selection:text-emerald-100 font-sans">
-      {/* Top Minimal Navigation */}
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans overflow-x-clip">
+      <Preloader />
       <Navigation />
 
-      {/* Main Single Column Layout */}
-      <main className="max-w-[720px] mx-auto px-4 sm:px-6 overflow-x-hidden">
-        <Intro />
-        <WhatIBuild />
-        <FavoriteSpotlight />
-        <SelectedWork />
-        <ExtendedProjects />
-        <ResearchLibrary />
-        <ExperienceAchievements />
-        <About />
-        <Contact />
-        <Footer />
-      </main>
+      <PortfolioShell>
+        <main>
+          <HeroRed />
+          <WhatIBuild />
+          <FavoriteSpotlight />
+          <SelectedWork />
+          <WritingPreview posts={posts} />
+          <ResearchLibrary />
+          <ExperienceAchievements />
+          <About />
+          <Contact />
+          <Footer />
+        </main>
+      </PortfolioShell>
     </div>
   )
 }
-

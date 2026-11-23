@@ -1,341 +1,529 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowUpRight, ChevronRight, X, Github, ExternalLink, FileCode, Layers } from "lucide-react"
-import type { Project } from "@/types/project"
-import { projects } from "@/lib/projects-data"
-import { ProjectVisual } from "@/components/project-visual"
+import { useCallback, useEffect, useRef, useState } from "react"
+import * as THREE from "three"
+import { ArrowDown } from "lucide-react"
+import "./selected-work/selected-work.css"
 import {
-  PythonIcon,
-  FastApiIcon,
-  TypeScriptIcon,
-  NextjsIcon,
-  GitHubBrandIcon,
-} from "@/components/tech-icons"
+  CHAPTERS,
+  CHAPTER_RANGES,
+  OPENER_END_P,
+  SMOOTH_FACTOR,
+  TOTAL_SCROLL_VH,
+  TRANSITION_DURATION_MS,
+} from "./selected-work/chapters-config"
+import {
+  clamp01,
+  detectSoftwareWebGL,
+  type MedscopeParams,
+  type MedscopeTelemetry,
+  type SceneCreateOptions,
+  type SceneHandle,
+} from "./selected-work/scenes/types"
+import { createProbeScene } from "./selected-work/scenes/probe-scene"
+import { createMedscopeScene } from "./selected-work/scenes/medscope-scene"
+import { createIndieCropScene } from "./selected-work/scenes/indiecrop-scene"
+import { createIdaScene } from "./selected-work/scenes/ida-scene"
+import { ProbeOverlay } from "./selected-work/overlays/ProbeOverlay"
+import { MedscopeOverlay } from "./selected-work/overlays/MedscopeOverlay"
+import { IndieCropOverlay } from "./selected-work/overlays/IndieCropOverlay"
+import { IdaOverlay } from "./selected-work/overlays/IdaOverlay"
+
+type CurtainPhase = "idle" | "in" | "out"
+
+function createSceneForChapter(
+  chapterIdx: number,
+  options: SceneCreateOptions
+): SceneHandle | null {
+  switch (chapterIdx) {
+    case 0:
+      return createProbeScene(options)
+    case 1:
+      return createMedscopeScene(options)
+    case 2:
+      return createIndieCropScene(options)
+    case 3:
+      return createIdaScene(options)
+    default:
+      return null
+  }
+}
 
 export function SelectedWork() {
-  const [activeProject, setActiveProject] = useState<Project | null>(null)
+  const wrapRef = useRef<HTMLDivElement | null>(null)
+  const stageRef = useRef<HTMLDivElement | null>(null)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
-  const selectedProjects = [
-    {
-      number: "01",
-      id: "omniq",
-      name: "Omniq",
-      tagline: "Voice AI infrastructure for people without smartphones.",
-      description:
-        "Explores voice-based access through 2G/PSTN, realtime conversational AI, IVR, structured information extraction, and multilingual interaction.",
-      tags: ["Python", "Voice AI", "Realtime Systems", "IVR", "LLMs"],
-      github: "https://github.com/yab-g4u/omniq.git",
-      demo: "https://omniq-sigma.vercel.app/",
-      dataId: "omniq",
-    },
-    {
-      number: "02",
-      id: "medscope",
-      name: "Medscope",
-      tagline: "Multi-Agent Epidemic Coordination System.",
-      description:
-        "AI-powered public-health intelligence system combining epidemic simulation with specialized AI agents for policy, logistics, government response, and sentiment analysis.",
-      tags: ["Multi-Agent AI", "Epidemic Simulation", "Blockchain", "AI Decision Support"],
-      github: "https://github.com/yab-g4u/medscop.git",
-      demo: "https://medscop.vercel.app/",
-      dataId: "medscope",
-    },
-    {
-      number: "03",
-      id: "atlas",
-      name: "ATLAS",
-      tagline: "AI-powered infrastructure that turns GitHub repositories into deployable portfolios.",
-      description:
-        "GitHub intelligence, resume/professional information ingestion, project analysis, design synthesis, portfolio generation, and one-click deployment.",
-      tags: ["GitHub Intelligence", "Resume Ingestion", "Design Synthesis", "Next.js", "AI Automation"],
-      github: "https://github.com/yab-g4u/attlas",
-      demo: "https://attlas-nu.vercel.app/",
-      dataId: "atlas",
-    },
-    {
-      number: "04",
-      id: "ida",
-      name: "IDA",
-      tagline: "AI-powered healthcare assistant & blockchain pharmaceutical discovery.",
-      description:
-        "Provides verified medicine discovery, clinical interaction warnings, geographic pharmacy stock locator, and trust-anchored pharmaceutical transactions.",
-      tags: ["Healthcare AI", "Search & Discovery", "Location Services", "Blockchain Marketplace", "Python"],
-      github: "https://github.com/yab-g4u/IDA",
-      demo: "https://ida-test.vercel.app/",
-      dataId: "ida",
-    },
-    {
-      number: "05",
-      id: "datapilot",
-      name: "DataPilot",
-      tagline: "Explainable machine-learning platform for financial & microfinance datasets.",
-      description:
-        "Handles data preprocessing, automated machine learning model evaluation, SHAP explainability analysis, PDF audit reports, and FastAPI inference.",
-      tags: ["Machine Learning", "SHAP Explainability", "PDF Audits", "FastAPI", "Python"],
-      github: "https://github.com/yab-g4u/DataPilot",
-      demo: "",
-      dataId: "datapilot",
-    },
-  ]
+  const [reducedMotion, setReducedMotion] = useState(false)
+  const [renderedChapter, setRenderedChapter] = useState<number>(-1) // -1 = Opener
+  const [beatIndex, setBeatIndex] = useState<number>(0)
+  const [subLabel, setSubLabel] = useState<string>("04 Projects")
+  const [curtainPhase, setCurtainPhase] = useState<CurtainPhase>("idle")
+  const [curtainLabel, setCurtainLabel] = useState<string>("Selected Work")
+  const [curtainSkipTransition, setCurtainSkipTransition] = useState<boolean>(false)
 
-  const handleOpenDetails = (dataId: string) => {
-    const found = projects.find((p) => p.id === dataId)
-    if (found) {
-      setActiveProject(found)
+  const [medscopeParams, setMedscopeParams] = useState<MedscopeParams>({
+    transmission: 1.3,
+    vaccination: 20,
+    delay: 18,
+  })
+  const [medscopeTelemetry, setMedscopeTelemetry] = useState<MedscopeTelemetry>({
+    infectedPct: 0,
+    day: 0,
+  })
+
+  // Mutable refs for 60fps RAF loop without tearing down renderer
+  const renderedChapterRef = useRef<number>(-1)
+  const desiredChapterRef = useRef<number>(-1)
+  const beatIndexRef = useRef<number>(0)
+  const subLabelRef = useRef<string>("04 Projects")
+  const localTargetPRef = useRef<number>(0)
+  const smoothPRef = useRef<number>(0)
+  const chapterEnterTimeRef = useRef<number>(0)
+  const isWipingRef = useRef<boolean>(false)
+  const isVisibleRef = useRef<boolean>(false)
+  const medscopeParamsRef = useRef<MedscopeParams>(medscopeParams)
+  const pointerRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
+
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
+  const activeSceneRef = useRef<SceneHandle | null>(null)
+  const reducedMotionRef = useRef<boolean>(false)
+
+  useEffect(() => {
+    medscopeParamsRef.current = medscopeParams
+  }, [medscopeParams])
+
+  // Track prefers-reduced-motion live
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const sync = () => {
+      reducedMotionRef.current = mq.matches
+      setReducedMotion(mq.matches)
     }
-  }
+    sync()
+    mq.addEventListener("change", sync)
+    return () => mq.removeEventListener("change", sync)
+  }, [])
+
+  const swapSceneImmediately = useCallback((nextIdx: number) => {
+    const renderer = rendererRef.current
+    const stage = stageRef.current
+    if (activeSceneRef.current) {
+      activeSceneRef.current.dispose()
+      activeSceneRef.current = null
+    }
+
+    if (renderer && stage && nextIdx >= 0) {
+      const rect = stage.getBoundingClientRect()
+      const aspect = rect.height > 0 ? rect.width / rect.height : window.innerWidth / window.innerHeight
+      const isMobile = window.innerWidth < 800
+      try {
+        activeSceneRef.current = createSceneForChapter(nextIdx, {
+          renderer,
+          isMobile,
+          reducedMotion: reducedMotionRef.current,
+          aspect,
+        })
+      } catch {
+        activeSceneRef.current = null
+      }
+    }
+
+    renderedChapterRef.current = nextIdx
+    smoothPRef.current = localTargetPRef.current
+    chapterEnterTimeRef.current = performance.now()
+    setRenderedChapter(nextIdx)
+
+    if (nextIdx >= 0) {
+      const ch = CHAPTERS[nextIdx]
+      const count = ch.id === "probe" ? 9 : 6
+      const initBeat = Math.min(count - 1, Math.round(localTargetPRef.current * (count - 1)))
+      beatIndexRef.current = initBeat
+      setBeatIndex(initBeat)
+      const initSub = ch.subChapters[Math.min(ch.subChapters.length - 1, initBeat)] ?? ch.tagline
+      subLabelRef.current = initSub
+      setSubLabel(initSub)
+    } else {
+      beatIndexRef.current = 0
+      setBeatIndex(0)
+      subLabelRef.current = "04 Projects"
+      setSubLabel("04 Projects")
+    }
+  }, [])
+
+  // Main WebGL renderer, scroll progress tracker, transition orchestrator, and IntersectionObserver RAF loop
+  useEffect(() => {
+    const wrap = wrapRef.current
+    const stage = stageRef.current
+    const canvas = canvasRef.current
+    if (!wrap || !stage || !canvas) return
+
+    const isSoftwareGl = detectSoftwareWebGL()
+    let renderer: THREE.WebGLRenderer | null = null
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: !isSoftwareGl,
+        alpha: true,
+        powerPreference: "high-performance",
+      })
+      renderer.outputColorSpace = THREE.SRGBColorSpace
+      renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio || 1, 1.5))
+      renderer.setClearColor(0x000000, 0)
+    } catch {
+      renderer = null
+    }
+    rendererRef.current = renderer
+
+    const handleResize = () => {
+      const rect = stage.getBoundingClientRect()
+      const w = rect.width || window.innerWidth
+      const h = rect.height || window.innerHeight
+      const isMobile = window.innerWidth < 800
+      if (renderer) {
+        renderer.setSize(w, h, false)
+        renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio || 1, 1.5))
+      }
+      if (activeSceneRef.current && h > 0) {
+        activeSceneRef.current.resize(w / h, isMobile)
+      }
+    }
+    handleResize()
+
+    const ro = new ResizeObserver(handleResize)
+    ro.observe(stage)
+
+    const onPointerMove = (e: PointerEvent) => {
+      pointerRef.current.x = e.clientX / window.innerWidth - 0.5
+      pointerRef.current.y = e.clientY / window.innerHeight - 0.5
+    }
+    window.addEventListener("pointermove", onPointerMove, { passive: true })
+
+    let wipeTimer1 = 0
+    let wipeTimer2 = 0
+    let wipeTimer3 = 0
+
+    const triggerTransition = (nextIdx: number) => {
+      if (isWipingRef.current || reducedMotionRef.current) {
+        if (reducedMotionRef.current) swapSceneImmediately(nextIdx)
+        return
+      }
+      isWipingRef.current = true
+      const targetTitle = nextIdx >= 0 ? CHAPTERS[nextIdx].title : "Selected Work"
+      setCurtainLabel(targetTitle)
+      setCurtainSkipTransition(false)
+      setCurtainPhase("in")
+
+      const halfMs = Math.round(TRANSITION_DURATION_MS / 2)
+      wipeTimer1 = window.setTimeout(() => {
+        const finalTarget = desiredChapterRef.current
+        swapSceneImmediately(finalTarget)
+        setCurtainPhase("out")
+
+        wipeTimer2 = window.setTimeout(() => {
+          setCurtainSkipTransition(true)
+          setCurtainPhase("idle")
+          wipeTimer3 = window.setTimeout(() => {
+            setCurtainSkipTransition(false)
+            isWipingRef.current = false
+            if (desiredChapterRef.current !== renderedChapterRef.current) {
+              triggerTransition(desiredChapterRef.current)
+            }
+          }, 30)
+        }, halfMs + 40)
+      }, halfMs)
+    }
+
+    const computeScroll = () => {
+      if (reducedMotionRef.current) return
+      const rect = wrap.getBoundingClientRect()
+      const scrollable = wrap.offsetHeight - window.innerHeight
+      const rawP = scrollable > 0 ? clamp01(-rect.top / scrollable) : 0
+
+      if (rawP < OPENER_END_P) {
+        desiredChapterRef.current = -1
+        localTargetPRef.current = OPENER_END_P > 0 ? rawP / OPENER_END_P : 0
+      } else {
+        const matched =
+          CHAPTER_RANGES.find((r) => rawP >= r.startP && rawP <= r.endP) ??
+          CHAPTER_RANGES[CHAPTER_RANGES.length - 1]
+        desiredChapterRef.current = matched.index
+        const span = matched.endP - matched.startP || 1
+        localTargetPRef.current = clamp01((rawP - matched.startP) / span)
+      }
+
+      if (desiredChapterRef.current !== renderedChapterRef.current && !isWipingRef.current) {
+        triggerTransition(desiredChapterRef.current)
+      }
+    }
+
+    computeScroll()
+    window.addEventListener("scroll", computeScroll, { passive: true })
+
+    // Clock & active-only RAF loop managed by IntersectionObserver
+    const clock = new THREE.Clock()
+    let rafId = 0
+
+    const frameLoop = () => {
+      rafId = window.requestAnimationFrame(frameLoop)
+      if (!isVisibleRef.current || reducedMotionRef.current) return
+
+      const elapsed = clock.getElapsedTime()
+      const now = performance.now()
+      const chIdx = renderedChapterRef.current
+
+      if (chIdx >= 0) {
+        smoothPRef.current += (localTargetPRef.current - smoothPRef.current) * SMOOTH_FACTOR
+        const p = clamp01(smoothPRef.current)
+        const ch = CHAPTERS[chIdx]
+
+        // Update active beat & HUD sub-chapter label
+        const maxBeat = ch.id === "probe" ? 8 : 5
+        const nextBeat = Math.min(maxBeat, Math.round(p * maxBeat))
+        if (nextBeat !== beatIndexRef.current) {
+          beatIndexRef.current = nextBeat
+          setBeatIndex(nextBeat)
+        }
+
+        const subIdx =
+          ch.id === "ida"
+            ? Math.min(ch.subChapters.length - 1, Math.floor(p * 5 + 0.35))
+            : Math.min(ch.subChapters.length - 1, nextBeat)
+        const nextSub = ch.subChapters[subIdx] ?? ch.tagline
+        if (nextSub !== subLabelRef.current) {
+          subLabelRef.current = nextSub
+          setSubLabel(nextSub)
+        }
+
+        // Update active Three.js scene
+        if (activeSceneRef.current && renderer) {
+          activeSceneRef.current.update(p, elapsed, pointerRef.current, {
+            medscope: medscopeParamsRef.current,
+            onMedscopeTelemetry: (tel) => setMedscopeTelemetry(tel),
+            chapterEnterTime: chapterEnterTimeRef.current,
+            now,
+          })
+          renderer.render(activeSceneRef.current.scene, activeSceneRef.current.camera)
+        }
+      } else if (renderer) {
+        // Clear during Opener beat
+        renderer.clear()
+      }
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        isVisibleRef.current = entries[0]?.isIntersecting ?? false
+        if (isVisibleRef.current) {
+          computeScroll()
+        }
+      },
+      { threshold: 0 }
+    )
+    io.observe(wrap)
+
+    rafId = window.requestAnimationFrame(frameLoop)
+
+    return () => {
+      window.cancelAnimationFrame(rafId)
+      window.clearTimeout(wipeTimer1)
+      window.clearTimeout(wipeTimer2)
+      window.clearTimeout(wipeTimer3)
+      io.disconnect()
+      ro.disconnect()
+      window.removeEventListener("scroll", computeScroll)
+      window.removeEventListener("pointermove", onPointerMove)
+      if (activeSceneRef.current) {
+        activeSceneRef.current.dispose()
+        activeSceneRef.current = null
+      }
+      if (renderer) {
+        renderer.dispose()
+        rendererRef.current = null
+      }
+    }
+  }, [swapSceneImmediately])
+
+  const scrollToChapter = useCallback(
+    (index: number) => {
+      const wrap = wrapRef.current
+      if (!wrap) return
+      const range = CHAPTER_RANGES[index]
+      if (!range) return
+      const wrapTop = wrap.getBoundingClientRect().top + window.scrollY
+      const scrollable = Math.max(1, wrap.offsetHeight - window.innerHeight)
+      const targetP = range.startP + 0.015 * (range.endP - range.startP)
+      window.scrollTo({
+        top: Math.round(wrapTop + targetP * scrollable),
+        behavior: reducedMotion ? "auto" : "smooth",
+      })
+    },
+    [reducedMotion]
+  )
+
+  const currentChapter = renderedChapter >= 0 ? CHAPTERS[renderedChapter] : null
+  const stageStyle = {
+    "--sw-stage-bg": currentChapter ? currentChapter.bgHex : "#0a0a0a",
+    "--sw-stage-fog": currentChapter ? currentChapter.fogHex : "#2a0406",
+  } as React.CSSProperties
+
+  const curtainClass =
+    curtainPhase === "in"
+      ? "sw-pn phase-in"
+      : curtainPhase === "out"
+        ? "sw-pn phase-out"
+        : "sw-pn"
+
+  const scrimClass =
+    currentChapter?.scrimVariant === "left"
+      ? "sw-scr sw-scr--left"
+      : currentChapter?.scrimVariant === "bottom"
+        ? "sw-scr sw-scr--bottom"
+        : "sw-scr sw-scr--ambient"
 
   return (
-    <section id="selected-work" className="py-12 border-t border-border">
-      <div className="space-y-8">
-        <div className="flex items-baseline justify-between">
-          <div className="space-y-1">
-            <h2 className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-              Selected work
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              Flagship engineering projects & production architectures.
-            </p>
+    <section id="works" aria-label="Selected Work">
+      <div
+        id="selected-work"
+        ref={wrapRef}
+        className="sw-wrap"
+        style={{ height: reducedMotion ? "auto" : `${TOTAL_SCROLL_VH}svh` }}
+      >
+        <div className="sw-stage" ref={stageRef} style={stageStyle}>
+          {/* Single shared WebGL canvas */}
+          <canvas className="sw-gl" ref={canvasRef} aria-hidden="true" />
+          <div className="sw-dz" aria-hidden="true" />
+          <div className={scrimClass} aria-hidden="true" />
+
+          {/* Crimson transition curtain (.pn language) */}
+          <div
+            className={curtainClass}
+            style={{
+              transition: curtainSkipTransition
+                ? "none"
+                : `transform ${Math.round(TRANSITION_DURATION_MS / 2)}ms cubic-bezier(0.7, 0, 0.2, 1)`,
+            }}
+            aria-hidden="true"
+          >
+            <div className="sw-pn-title">{curtainLabel}</div>
           </div>
-          <span className="text-xs text-muted-foreground font-mono">01 — 05</span>
-        </div>
 
-        {/* Project List with Mobile Visual Cards & Desktop Editorial Flow */}
-        <div className="space-y-8 divide-y divide-border">
-          {selectedProjects.map((p) => (
-            <div
-              key={p.number}
-              className="pt-8 first:pt-0 group transition-colors space-y-4"
-            >
-              {/* Abstract Visual Identity Banner */}
-              <div className="block">
-                <ProjectVisual id={p.id} name={p.name} />
-              </div>
+          {/* Persistent Selected Work HUD (offset cleanly below main site dock) */}
+          <div className="sw-hud">
+            <div className="sw-hud-left">
+              <span className="sw-hud-idx">
+                {currentChapter ? `${currentChapter.number} / 04` : "00 / 04"}
+              </span>
+              <span>·</span>
+              <span>{currentChapter ? currentChapter.title : "Selected Work"}</span>
+            </div>
 
-              {/* Information Row */}
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-secondary text-foreground">
-                      {p.number}
-                    </span>
-                    <h3 className="text-base sm:text-lg font-semibold text-foreground tracking-tight group-hover:text-accent transition-colors">
-                      {p.name}
-                    </h3>
+            <div className="sw-hud-right">
+              <span className="sw-hud-sub">
+                {currentChapter?.id === "medscope"
+                  ? `${subLabel} · Day ${String(medscopeTelemetry.day).padStart(2, "0")} / 60`
+                  : subLabel}
+              </span>
+            </div>
+          </div>
+
+          {/* 4 Clickable chapter index ticks */}
+          <nav className="sw-ticks" aria-label="Project chapters">
+            {CHAPTERS.map((ch, idx) => (
+              <button
+                key={ch.id}
+                type="button"
+                className={`sw-tick ${renderedChapter === idx ? "is-on" : ""}`}
+                onClick={() => scrollToChapter(idx)}
+                aria-label={`Jump to chapter ${ch.number}: ${ch.title}`}
+              >
+                <span className="sw-tick-label">
+                  {ch.number} · {ch.title}
+                </span>
+                <span className="sw-tick-dot" />
+              </button>
+            ))}
+          </nav>
+
+          {/* Per-project chapter overlays driven by scroll progress */}
+          <div className="sw-overlay-root">
+            {/* Opener beat: Selected Work · 04 projects */}
+            {(reducedMotion || renderedChapter === -1) && (
+              <div className={`sw-beat sw-c ${reducedMotion || renderedChapter === -1 ? "is-active" : ""}`}>
+                <div className="sw-interactive max-w-3xl mx-auto">
+                  <div className="sw-n sw-rv">Selected Work · 04 projects</div>
+                  <h2 className="sw-h1 sw-rv" style={{ fontSize: "clamp(42px, 7.6vw, 128px)" }}>
+                    Selected Work.
+                  </h2>
+                  <p className="sw-p sw-lead sw-rv mx-auto">
+                    Four interactive engineering chapters — scroll through each system in motion,
+                    or jump straight to any chapter below.
+                  </p>
+                  <div className="sw-opener-grid sw-rv">
+                    {CHAPTERS.map((ch, idx) => (
+                      <button
+                        key={ch.id}
+                        type="button"
+                        className="sw-opener-btn"
+                        onClick={() => scrollToChapter(idx)}
+                      >
+                        <span className="text-[#ff6a6a]">{ch.number}</span>
+                        <span>{ch.title}</span>
+                      </button>
+                    ))}
                   </div>
-
-                  {/* Desktop Quick Links */}
-                  <div className="hidden sm:flex items-center gap-3 text-xs font-medium shrink-0">
-                    {p.demo && (
-                      <a
-                        href={p.demo}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-foreground hover:text-accent inline-flex items-center gap-1 transition-colors"
-                      >
-                        <span>Live Demo</span>
-                        <ArrowUpRight className="w-3.5 h-3.5 opacity-80" />
-                      </a>
-                    )}
-                    {p.github && (
-                      <a
-                        href={p.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
-                      >
-                        <span>GitHub</span>
-                        <ArrowUpRight className="w-3 h-3 opacity-60" />
-                      </a>
-                    )}
+                  <div className="mt-6 sw-rv">
                     <button
-                      onClick={() => handleOpenDetails(p.dataId)}
-                      className="text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5 transition-colors cursor-pointer"
+                      type="button"
+                      className="sw-pill"
+                      onClick={() => scrollToChapter(0)}
                     >
-                      <span>Arch Notes</span>
-                      <ChevronRight className="w-3 h-3 opacity-60" />
+                      <span>Start Chapter 01 · Probe</span>
+                      <ArrowDown className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
-
-                <p className="text-sm text-foreground font-medium leading-relaxed">
-                  {p.tagline}
-                </p>
-
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {p.description}
-                </p>
-
-                {/* Technology Badges */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  {p.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 rounded bg-secondary/70 border border-border/60 text-[11px] font-mono text-muted-foreground"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Mobile Touch-Friendly Action Buttons */}
-                <div className="flex sm:hidden items-center gap-2 pt-2">
-                  {p.demo && (
-                    <a
-                      href={p.demo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md bg-foreground text-background text-xs font-medium active:scale-[0.98] transition-transform"
-                    >
-                      <span>Live Demo</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </a>
-                  )}
-
-                  {p.github && (
-                    <a
-                      href={p.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-md bg-secondary border border-border text-foreground text-xs font-medium active:scale-[0.98] transition-transform"
-                    >
-                      <Github className="w-3.5 h-3.5" />
-                      <span>Code</span>
-                    </a>
-                  )}
-
-                  <button
-                    onClick={() => handleOpenDetails(p.dataId)}
-                    className="p-2 rounded-md bg-secondary/80 border border-border text-muted-foreground hover:text-foreground transition-colors"
-                    title="View Architectural Notes"
-                    aria-label="View Architectural Notes"
-                  >
-                    <FileCode className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Technical Detail Modal */}
-      {activeProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-background/80 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative w-full max-w-xl bg-card border border-border rounded-lg shadow-xl max-h-[85vh] overflow-y-auto p-5 sm:p-8 space-y-6">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between border-b border-border pb-4">
-              <div>
-                <div className="font-mono text-xs text-muted-foreground mb-1">
-                  {activeProject.number} // ARCHITECTURAL NOTES
-                </div>
-                <h3 className="text-lg sm:text-xl font-semibold text-foreground">
-                  {activeProject.name}
-                </h3>
-              </div>
-              <button
-                onClick={() => setActiveProject(null)}
-                className="p-1 rounded text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Close notes"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Core Summary */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                What Was Built
-              </h4>
-              <p className="text-xs sm:text-sm text-foreground leading-relaxed">
-                {activeProject.whatWasBuilt || activeProject.description}
-              </p>
-            </div>
-
-            {/* Architecture Steps */}
-            {activeProject.architectureSteps && activeProject.architectureSteps.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                  System Architecture Pipeline
-                </h4>
-                <div className="space-y-2">
-                  {activeProject.architectureSteps.map((step) => (
-                    <div
-                      key={step.step}
-                      className="p-2.5 sm:p-3 rounded bg-secondary/50 border border-border/70 text-xs font-mono space-y-0.5"
-                    >
-                      <div className="flex items-center gap-2 text-foreground font-semibold">
-                        <span className="text-accent">{step.step}</span>
-                        <span>{step.label}</span>
-                      </div>
-                      <p className="text-muted-foreground text-[11px] pl-6 font-sans">
-                        {step.desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
               </div>
             )}
 
-            {/* Technical Decisions */}
-            {activeProject.technicalDecisions && activeProject.technicalDecisions.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
-                  Key Technical Decisions
-                </h4>
-                <div className="space-y-2">
-                  {activeProject.technicalDecisions.map((dec) => (
-                    <div key={dec.title} className="p-3 rounded bg-secondary/40 border border-border/60 space-y-1">
-                      <div className="text-xs font-semibold text-foreground">
-                        {dec.title}
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        {dec.reasoning}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {/* Chapter 01: Probe */}
+            {(reducedMotion || renderedChapter === 0) && (
+              <ProbeOverlay
+                beatIndex={beatIndex}
+                reducedMotion={reducedMotion}
+                onJumpToChapter={scrollToChapter}
+              />
             )}
 
-            {/* Modal Links */}
-            <div className="pt-4 border-t border-border flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 text-xs font-medium flex-wrap">
-                {activeProject.github && (
-                  <a
-                    href={activeProject.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-foreground hover:text-accent inline-flex items-center gap-1"
-                  >
-                    <Github className="w-3.5 h-3.5" />
-                    <span>View Code</span>
-                  </a>
-                )}
-                {activeProject.demo && (
-                  <a
-                    href={activeProject.demo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-foreground hover:text-accent inline-flex items-center gap-1"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Live Demo</span>
-                  </a>
-                )}
-              </div>
+            {/* Chapter 02: Medscope */}
+            {(reducedMotion || renderedChapter === 1) && (
+              <MedscopeOverlay
+                beatIndex={beatIndex}
+                reducedMotion={reducedMotion}
+                params={medscopeParams}
+                telemetry={medscopeTelemetry}
+                onChangeParams={setMedscopeParams}
+                onJumpToChapter={scrollToChapter}
+              />
+            )}
 
-              <button
-                onClick={() => setActiveProject(null)}
-                className="px-3 py-1.5 rounded text-xs text-muted-foreground hover:text-foreground border border-border hover:bg-secondary transition-colors"
-              >
-                Close
-              </button>
-            </div>
+            {/* Chapter 03: IndieCrop */}
+            {(reducedMotion || renderedChapter === 2) && (
+              <IndieCropOverlay
+                beatIndex={beatIndex}
+                reducedMotion={reducedMotion}
+                onJumpToChapter={scrollToChapter}
+              />
+            )}
+
+            {/* Chapter 04: IDA */}
+            {(reducedMotion || renderedChapter === 3) && (
+              <IdaOverlay beatIndex={beatIndex} reducedMotion={reducedMotion} />
+            )}
           </div>
         </div>
-      )}
+      </div>
     </section>
   )
 }

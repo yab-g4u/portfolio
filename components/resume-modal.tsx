@@ -17,8 +17,9 @@ import {
   Phone,
   Maximize2,
   Minimize2,
-  ZoomIn,
-  ZoomOut,
+  Printer,
+  Copy,
+  Check,
 } from "lucide-react"
 import { GitHubBrandIcon, LinkedInBrandIcon } from "@/components/tech-icons"
 
@@ -65,9 +66,23 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
     document.body.removeChild(link)
   }
 
+  const handlePrint = () => {
+    const printWindow = window.open(cvUrl, "_blank")
+    if (printWindow) {
+      printWindow.focus()
+      setTimeout(() => {
+        try {
+          printWindow.print()
+        } catch {
+          // ignore if cross-origin or popups blocked
+        }
+      }, 500)
+    }
+  }
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[110] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-labelledby="resume-modal-title"
@@ -80,10 +95,10 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
       />
 
       <div
-        className={`relative z-10 w-full bg-card border border-border rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-200 ${
+        className={`relative z-10 w-full bg-[#120607] border border-[#ff2b2b]/40 shadow-[0_0_90px_#d6040744] flex flex-col overflow-hidden transition-all duration-200 ${
           isFullscreen
             ? "max-w-full h-full max-h-full rounded-none"
-            : "max-w-4xl h-[92vh] max-h-[880px]"
+            : "max-w-4xl h-[92vh] max-h-[880px] rounded-[24px]"
         }`}
       >
         {/* Top Control Bar */}
@@ -141,6 +156,16 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
               <Download className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Download PDF</span>
               <span className="sm:hidden">Download</span>
+            </button>
+
+            {/* Print Button */}
+            <button
+              onClick={handlePrint}
+              className="p-2 rounded-lg bg-secondary/60 hover:bg-secondary border border-border text-foreground transition-colors hidden sm:inline-flex"
+              title="Print CV"
+              aria-label="Print CV"
+            >
+              <Printer className="w-3.5 h-3.5" />
             </button>
 
             {/* Open in new tab */}

@@ -1,6 +1,7 @@
 "use client"
 
-import { ArrowUpRight, Github, ExternalLink } from "lucide-react"
+import Link from "next/link"
+import { ArrowUpRight, Github, ExternalLink, BookOpen } from "lucide-react"
 import { ProjectVisual } from "@/components/project-visual"
 
 export function ExtendedProjects() {
@@ -96,6 +97,15 @@ export function ExtendedProjects() {
 
                   {/* Action links */}
                   <div className="flex items-center gap-3 shrink-0 text-xs font-medium">
+                    {p.id === "suno" && (
+                      <Link
+                        href="/writing/building-suno-teaching-a-computer-to-understand-human-movement"
+                        className="text-accent hover:underline inline-flex items-center gap-1 transition-colors"
+                      >
+                        <BookOpen className="w-3 h-3" />
+                        <span>Journal</span>
+                      </Link>
+                    )}
                     {p.demo && (
                       <a
                         href={p.demo}

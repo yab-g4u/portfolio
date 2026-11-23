@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Medscope — Simulated Outbreak Response</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--red:#d60407;--hot:#ff2b2b;--blk:#0a0a0a;--r2:clamp(30px,3.4vw,56px);--mono:'JetBrains Mono',ui-monospace,monospace;--disp:'Archivo Black','Inter',sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--blk);color:#fff;font:400 17px/1.6 Inter,system-ui,sans-serif;overflow-x:hidden}
+#gl{position:fixed;inset:0;width:100%;height:100%;z-index:0;background:radial-gradient(80% 80% at 70% 50%,#3a0406,#0a0a0a 75%)}
+.dz{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.2;mix-blend-mode:multiply;background:radial-gradient(circle,#000a .8px,transparent 1.2px) 0 0/3px 3px}
+.scr{position:fixed;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,#0a0a0af5 0,#0a0a0ad0 34%,#0a0a0a00 62%)}
+main{position:relative;z-index:4}
+section{min-height:100svh;display:flex;align-items:center;padding:0 7%}section.c{justify-content:center;text-align:center;flex-direction:column}
+.col{max-width:540px;width:100%}
+.n{font:500 13px var(--mono);letter-spacing:.2em;color:var(--hot);text-transform:uppercase}
+h1{font:400 clamp(46px,9vw,150px)/.85 var(--disp);margin:14px 0 22px;letter-spacing:-.04em;text-shadow:0 0 80px #d6040788;text-transform:uppercase}
+h2{font:400 clamp(28px,4.2vw,62px)/1.04 var(--disp);text-transform:uppercase;letter-spacing:-.025em;margin:12px 0 16px}
+p{color:#ffd9d9;margin:0 0 22px}.lead{font-size:clamp(18px,1.8vw,26px);max-width:560px}
+.tag{display:inline-block;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:9px 16px;border:1px solid #ff2b2b66;border-radius:99px;background:#d604071f;backdrop-filter:blur(8px)}
+.card{position:relative;border-radius:var(--r2);padding:clamp(20px,2.4vw,32px);background:linear-gradient(160deg,#1a0305e6,#0a0a0ae6);backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px #ff2b2b33,0 0 90px #d6040733;overflow:hidden;text-align:left}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.chips button,.chips span{font:500 12px var(--mono);letter-spacing:.06em;color:#fff;padding:8px 14px;border-radius:99px;background:#ffffff10;border:1px solid #ff2b2b44;cursor:pointer}.chips .on{background:var(--red);border-color:#ff6a6a}.chips span{cursor:default}
+.sl{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin:12px 0;font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#ffd9d9}.sl output{color:#fff}.sl input{grid-column:1/-1;width:100%;accent-color:#ff2b2b;margin:4px 0 0}
+.read{display:flex;align-items:baseline;gap:10px;border-top:1px solid #ffffff1a;padding-top:14px;margin-top:6px}.big{font:400 clamp(40px,4.6vw,64px)/1 var(--disp);letter-spacing:-.03em}.read small{font:500 12px var(--mono);color:#ffb3b3;letter-spacing:.08em;text-transform:uppercase}
+.lg{display:flex;gap:16px;margin-top:12px;font:500 11px var(--mono);letter-spacing:.06em;color:#ffd9d9;flex-wrap:wrap}.lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #ffffff14;font-size:15px}.row:last-of-type{border:0}.row b{display:block;font-weight:600}.row span{color:#ffb3b3;font-size:13px}.row em{margin-left:auto;font:500 11px var(--mono);font-style:normal;padding:4px 10px;border-radius:99px;border:1px dashed #ff6a6a;color:#ffb3b3;white-space:nowrap}
+.ag{font:400 20px var(--disp);color:var(--hot);width:26px;flex:none}
+.fn{font:400 11px var(--mono);color:#ffffff66;margin-top:12px}
+.pill{display:inline-block;margin:8px 6px 0;padding:16px 30px;border-radius:99px;background:linear-gradient(#ff4a4a,#d60407 55%,#7a0204);color:#fff;text-decoration:none;font-weight:600;box-shadow:0 10px 40px #d6040766,inset 0 1px #ffffff55;transition:transform .25s}.pill:hover{transform:translateY(-3px)}.pill.o{background:#0a0a0a88;border:1px solid #ff2b2b88;box-shadow:none}
+.hud{position:fixed;z-index:6;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 14px);display:flex;justify-content:space-between;align-items:center;padding:0 clamp(16px,3vw,40px);pointer-events:none;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#fff}
+.hud a{pointer-events:auto;color:#fff;text-decoration:none;padding:9px 16px;border-radius:99px;border:1px solid #ff2b2b66;background:#0a0a0a88;backdrop-filter:blur(10px)}
+.rv{opacity:0;transform:translateY(34px);filter:blur(8px);transition:opacity .9s,transform .9s cubic-bezier(.2,.7,.2,1),filter .9s}.rv.in{opacity:1;transform:none;filter:none}
+@keyframes sh{to{background-position:-200% 0}}
+.card.sk>*{opacity:0}.card>*{transition:opacity .7s}.card.sk:after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(105deg,#1a0305 35%,#ff2b2b3a 50%,#1a0305 65%) 100% 0/200% 100%;animation:sh 1.5s linear infinite}
+#ld{position:fixed;inset:0;z-index:100;pointer-events:none}.pn{position:absolute;inset:0;background:radial-gradient(70% 95% at 50% 105%,#e60000,#9a0606 45%,transparent 78%),#b00507;transition:transform .9s cubic-bezier(.7,0,.2,1)}
+#ld.out .pn{transform:translateY(-100%)}#lt{position:absolute;left:3.5vw;bottom:2.2vw;display:flex;font:400 clamp(44px,11vw,200px)/.85 var(--disp);letter-spacing:-.03em;text-transform:uppercase}
+#lt span{display:block;width:.8em;text-align:center;transform:translate(calc(var(--d,0)*.8em),calc(var(--y,0)*1vh));transition:transform .5s cubic-bezier(.7,0,.2,1)}
+@media(max-width:800px){section{align-items:flex-end;padding:0 6% 9vh}section.c{align-items:center}.col{max-width:none}.scr{background:linear-gradient(0deg,#0a0a0af2 0,#0a0a0acc 50%,#0a0a0a00 78%)}}
+@media(prefers-reduced-motion:reduce){.rv{transition:none;opacity:1;transform:none;filter:none}#lt span{transition:none}}
+</style></head><body>
+<div id="ld"><div class="pn"><div id="lt"></div></div></div>
+<canvas id="gl"></canvas><div class="dz"></div><div class="scr"></div>
+<div class="hud"><a href="https://claude.ai/artifact/Ghq8mExvNjRNKaxg8T64r7">← Portfolio</a><span><b id="ch">Overview</b> · Day <b id="dy">00</b> / 60</span></div>
+<main>
+<section><div class="col"><span class="tag rv">African Blockchain Championship 2025 · 2nd place</span><h1 class="rv">Medscope</h1><p class="lead rv">Simulated outbreak response and an AI-driven public health system, so institutions can rehearse before it counts.</p><span class="n rv">Scroll to run the outbreak ↓</span></div></section>
+
+<section><div class="col"><div class="n rv">01 · Epidemic simulation engine</div><h2 class="rv">Simulate the outbreak. Test the response.</h2><p class="rv">Pick a disease, adjust the parameters, and watch spread unfold across the map over 60 days.</p>
+<div class="card rv"><div class="chips" id="ds"><button class="on" data-v="1.3,20,18">COVID-19</button><button data-v="0.8,10,10">Ebola</button><button data-v="1,15,25">Cholera</button></div>
+<label class="sl">Transmission rate<output id="o1"></output><input id="s1" type="range" min=".5" max="2" step=".05" value="1.3"></label>
+<label class="sl">Vaccination<output id="o2"></output><input id="s2" type="range" min="0" max="60" step="1" value="20"></label>
+<label class="sl">Response delay<output id="o3"></output><input id="s3" type="range" min="5" max="40" step="1" value="18"></label>
+<div class="read"><div class="big" id="pc">0%</div><small>of the map infected</small></div>
+<div class="lg"><span><i style="background:#5a2a2a"></i>Susceptible</span><span><i style="background:#ff2b2b"></i>Infected</span><span><i style="background:#fff"></i>Vaccinated</span></div>
+<div class="fn">Simulation, not a forecast.</div></div></div></section>
+
+<section><div class="col"><div class="n rv">02 · AI multi-agent system · CrewAI</div><h2 class="rv">Four agents. One response plan.</h2><p class="rv">Intelligent agents plan the response together, from policy to logistics to public reaction.</p>
+<div class="card rv"><div class="row"><i class="ag">1</i><div><b>Medical Policy Advisor</b><span>Recommends public health interventions</span></div></div><div class="row"><i class="ag">2</i><div><b>Logistics Agent</b><span>Allocates beds, staff and medicine</span></div></div><div class="row"><i class="ag">3</i><div><b>Public Sentiment Monitor</b><span>Tracks public reaction (simulated)</span></div></div><div class="row"><i class="ag">4</i><div><b>Government Simulator</b><span>Models the impact of policy delays</span></div></div></div></div></section>
+
+<section><div class="col"><div class="n rv">03 · Funding simulation · Masumi</div><h2 class="rv">Follow the funding</h2><p class="rv">Simulate financial flows with preprod ADA through decentralized protocols from Masumi, and track funding across agents.</p>
+<div class="card rv"><div class="row"><div><b>Government / NGO wallets</b><span>Simulation wallets</span></div><em>SIMULATED</em></div><div class="row"><div><b>Medical personnel payments</b><span>Payment simulation</span></div><em>SIMULATED</em></div><div class="row"><div><b>Funding across agents</b><span>Tracked end to end</span></div><em>SIMULATED</em></div><div class="fn">Preprod ADA only. No real funds move.</div></div></div></section>
+
+<section><div class="col"><div class="n rv">04 · Real-world datasets</div><h2 class="rv">Grounded in public data</h2><p class="rv">Simulations draw on open health datasets, and insights stay open to everyone, in line with SDG 3.</p>
+<div class="card rv"><div class="chips"><span>WHO Epidemic Reports</span><span>CDC Influenza Dataset</span><span>India COVID Resources · data.gov.in</span><span>NHS medical response APIs</span></div><div class="row"><div><b>SDG 3</b><span>Good Health and Well-being</span></div></div></div></div></section>
+
+<section class="c"><div class="n rv">Prepared, not reactive</div><h2 class="rv">Preparedness, rehearsed.</h2><div class="rv"><a class="pill" href="https://medscop.vercel.app/" target="_blank" rel="noopener">Open live demo ↗</a><a class="pill o" href="https://claude.ai/artifact/Ghq8mExvNjRNKaxg8T64r7">Back to portfolio</a></div></section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),rm=matchMedia('(prefers-reduced-motion:reduce)').matches,mob=innerWidth<800;let ready=false;
+const WD='MEDSCOPE'.split(''),id=[...Array(8).keys()],sh=()=>[...id].sort(()=>Math.random()-.5),PS=[sh(),sh(),id.map(i=>i^1),id],YS=[[-55,0,-30,0,-45,0,-20,0],[0,-40,0,-25,0,-35,0,-10],[0,0,-12,0,0,-8,0,0],id.map(()=>0)];
+$('#lt').innerHTML=WD.map(c=>`<span>${c}</span>`).join('');let hk=0;const hop=()=>[...$('#lt').children].forEach((e,i)=>{e.style.setProperty('--d',PS[hk][i]-i);e.style.setProperty('--y',YS[hk][i])});hop();const iv=setInterval(()=>{if(hk<3){hk++;hop()}else clearInterval(iv)},520);
+const cs=[...document.querySelectorAll('.card')];if(!rm)cs.forEach(c=>c.classList.add('sk'));
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&ready){e.target.classList.add('in');io.unobserve(e.target);if(e.target.classList.contains('card'))setTimeout(()=>e.target.classList.remove('sk'),400+Math.random()*400)}}),{threshold:.15});
+setTimeout(()=>{ready=true;clearInterval(iv);const l=$('#ld');l.classList.add('out');document.querySelectorAll('.rv').forEach(e=>io.observe(e));setTimeout(()=>l.remove(),1000)},rm?200:2500);
+/* controls */
+const sv=()=>{$('#o1').textContent='×'+(+$('#s1').value).toFixed(2);$('#o2').textContent=$('#s2').value+'%';$('#o3').textContent=$('#s3').value+' days'};['s1','s2','s3'].forEach(i=>$('#'+i).addEventListener('input',sv));sv();
+$('#ds').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;[...$('#ds').children].forEach(x=>x.classList.toggle('on',x===b));b.dataset.v.split(',').forEach((v,i)=>$('#s'+(i+1)).value=v);sv()});
+const T=window.THREE;
+if(T){try{
+const R=new T.WebGLRenderer({canvas:$('#gl'),antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new T.Scene(),C=new T.PerspectiveCamera(45,1,.1,300),G=new T.Group();S.add(G);
+const AF=[[-5.9,35.8],[-2,35.1],[3,36.8],[10.2,37.3],[11,33.5],[15,32.3],[20,32.8],[25,31.6],[32.5,31.2],[34,28],[35.5,24],[37,21],[38.5,18],[40,15.5],[43.2,12.7],[43,11.5],[51.2,11.8],[50.5,9],[48,4.5],[42,-1],[40,-4],[39.3,-7],[40.5,-11],[40.5,-15],[35,-19.5],[35.5,-24],[32.8,-26],[32.5,-28.5],[30,-31.5],[27,-33.7],[22,-34.2],[18.4,-34.2],[18,-31],[15.2,-27],[14.5,-22],[11.7,-17.2],[13.5,-12],[12.3,-6],[9,-1],[9.5,3.8],[6,4.3],[2,6.3],[-2,4.8],[-7.5,4.4],[-11.5,6.8],[-13.5,9.5],[-17,14.7],[-16.5,19],[-17,21],[-13,27.7],[-9.8,30],[-9.2,33],[-6.8,34]];
+const pip=(x,y)=>{let c=false;for(let i=0,j=AF.length-1;i<AF.length;j=i++){const a=AF[i],b=AF[j];if((a[1]>y)!=(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c}return c};
+const k=.5,X=o=>(o-17)*k,Y=a=>(a-1)*k,st=mob?1.8:1.3,D=[];
+for(let la=-35;la<=37.5;la+=st)for(let lo=-18;lo<=52;lo+=st)if(pip(lo,la)||(((lo-47)/2.6)**2+((la+19.5)/6.5)**2<1))D.push([lo,la]);
+const N=D.length,ORG=[[24,-3],[-5,10]],tI=new Float32Array(N),rr=new Float32Array(N),cl=new Float32Array(N*3),ps=new Float32Array(N*3);
+D.forEach((d,i)=>{ps.set([X(d[0]),Y(d[1]),0],i*3);tI[i]=Math.min(...ORG.map(o=>Math.hypot(d[0]-o[0],d[1]-o[1])))*1.15+Math.random()*4;rr[i]=Math.random()});
+const dc=document.createElement('canvas');dc.width=dc.height=32;const dx=dc.getContext('2d'),dg=dx.createRadialGradient(16,16,0,16,16,16);dg.addColorStop(0,'#fff');dg.addColorStop(.45,'#fff');dg.addColorStop(1,'rgba(255,255,255,0)');dx.fillStyle=dg;dx.fillRect(0,0,32,32);const dt=new T.CanvasTexture(dc);
+const geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(ps,3));geo.setAttribute('color',new T.BufferAttribute(cl,3));const pm=new T.PointsMaterial({size:(mob?7:6.5)*R.getPixelRatio(),sizeAttenuation:false,vertexColors:true,map:dt,transparent:true,depthWrite:false});G.add(new T.Points(geo,pm));
+/* hubs, agent network, funding flows */
+const H=[[38.7,9],[36.8,-1.3],[3.4,6.5],[31.2,30],[28,-26],[-17.4,14.7]],ED=[[0,1],[0,3],[0,2],[1,4],[2,5]],hv=H.map(h=>new T.Vector3(X(h[0]),Y(h[1]),.1));
+const rc=document.createElement('canvas');rc.width=rc.height=64;const rx=rc.getContext('2d');rx.strokeStyle='#fff';rx.lineWidth=4;rx.beginPath();rx.arc(32,32,26,0,7);rx.stroke();const rt=new T.CanvasTexture(rc);
+const rings=hv.map(v=>{const s=new T.Sprite(new T.SpriteMaterial({map:rt,transparent:true,depthTest:false}));s.position.copy(v);G.add(s);return s});
+const lg=new T.BufferGeometry().setFromPoints(ED.flatMap(e=>[hv[e[0]],hv[e[1]]])),lm=new T.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0}),ln=new T.LineSegments(lg,lm);G.add(ln);
+const FN=ED.length*10,fp=new Float32Array(FN*3),fg=new T.BufferGeometry();fg.setAttribute('position',new T.BufferAttribute(fp,3));const fm=new T.PointsMaterial({size:8*R.getPixelRatio(),sizeAttenuation:false,color:0xffd0d0,map:dt,transparent:true,opacity:0,depthWrite:false}),fl=new T.Points(fg,fm);G.add(fl);
+const ss=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x)};
+const rs=()=>{R.setSize(innerWidth,innerHeight,false);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()};rs();addEventListener('resize',rs);
+let mx=0,my=0,cp=0;addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5});
+const CH=['Overview','Simulation','Agents','Funding','Data','Live demo'],clk=new T.Clock(),mxS=()=>document.body.scrollHeight-innerHeight;
+(function A(){requestAnimationFrame(A);const t=clk.getElapsedTime(),p0=mxS()>0?scrollY/mxS():0;cp+=(p0-cp)*.1;const p=cp,Tm=ss(.06,.4,p)*60;
+const sp=+$('#s1').value,vac=$('#s2').value/100,dl=+$('#s3').value;let inf=0;
+for(let i=0;i<N;i++){let tt=tI[i]/sp;if(tt>dl)tt=dl+(tt-dl)*3;let r,g,b;
+ if(rr[i]<vac*.8){r=g=b=.95}else if(Tm>tt){inf++;const f=Math.min(1,(Tm-tt)/3);r=1;g=b=.17+.8*(1-f)}else{r=.36;g=b=.16}
+ cl[i*3]=r;cl[i*3+1]=g;cl[i*3+2]=b}geo.attributes.color.needsUpdate=true;
+$('#pc').textContent=Math.round(inf/N*100)+'%';$('#dy').textContent=String(Math.round(Tm)).padStart(2,'0');
+const rv=ss(dl,dl+6,Tm),ag=ss(.34,.46,p),fw=ss(.54,.64,p)*(1-ss(.9,1,p)*.6);
+rings.forEach((s,i)=>{s.scale.setScalar(rv*(2.4+Math.sin(t*2+i)*.3)+.001);s.material.opacity=rv*.9});lm.opacity=ag*.55;fm.opacity=fw;
+ED.forEach((e,j)=>{for(let q=0;q<10;q++){const f=(t*.25+q/10)%1,a=hv[e[0]],b=hv[e[1]],o=(j*10+q)*3;fp[o]=a.x+(b.x-a.x)*f;fp[o+1]=a.y+(b.y-a.y)*f;fp[o+2]=.15}});fg.attributes.position.needsUpdate=true;
+pm.opacity=1-.55*ss(.88,1,p);
+G.rotation.set(-.85-my*.1,Math.sin(t*.2)*.06+mx*.12,0);
+C.position.set(0,0,mob?62:50);C.lookAt(mob?0:-9,mob?-15:0,0);
+$('#ch').textContent=CH[Math.min(5,Math.round(p*5))];R.render(S,C)})();
+}catch(e){console.warn('3D off',e)}}
+</script></body></html>
